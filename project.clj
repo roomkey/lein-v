@@ -3,8 +3,6 @@
   :url "https://github.com/g1nn13/lein-v"
   :dependencies [[org.clojure/clojure "1.4.0"]]
   :profiles {:dev {:dependencies [[midje "1.4.0"]]}}
-  :repositories [["releases" {:url "s3p://rk-maven/releases/" :username :env :passphrase :env}]
-                 ["snapshots" {:url "s3p://rk-maven/snapshots/" :username :env :passphrase :env}]]
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :eval-in-leiningen true)
