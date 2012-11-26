@@ -22,9 +22,9 @@
   (defn git-describe
    ([] (git-describe ".git"))
    ([git-path]
-      (when (. (clojure.java.io/file git-path) exists)
-        (let [desc (.. Runtime getRuntime (exec (into-array desc-args)))
-              _ (. desc waitFor)]
+      (when (.exists (clojure.java.io/file git-path))
+        (let [desc (.. Runtime getRuntime (exec (into-array desc-args)))]
+          (. desc waitFor)
           (cmdout desc))))))
 
 ;; Maven version formats are a cluster fuck.  The references below
