@@ -5,7 +5,6 @@
             [leiningen.compile]
             [leiningen.core.main]
             [leiningen.core.project]
-            [robert.hooke]
             [leiningen.test]))
 
 (defn version
@@ -43,19 +42,8 @@
            "cache" (cache project)
            (v))))
 
-(defn inject-version-hook [unhooked task-name project args]
-  "Inject the version into the project map"
-  (unhooked task-name
-            (assoc-in project [:version] (leiningen.v/version))
-            args))
-
 (defn update-cache-hook
   "Update the cached version available to the application"
-  [task & args]
-  (let [project (first args)]
-    (leiningen.v.file/cache project)
-    (apply task args)))
-
-(defn activate []
-  (robert.hooke/add-hook #'leiningen.compile/compile update-cache-hook)
-  (robert.hooke/add-hook #'leiningen.core.main/apply-task inject-version-hook))
+  [task & [project :as args]]
+  (leiningen.v.file/cache project)
+  (apply task args))
