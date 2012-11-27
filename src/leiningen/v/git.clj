@@ -16,6 +16,7 @@
             (.getErrorStream o)))]
     (join "\n" (line-seq r))))
 
+;; TODO: switch to jgit instead of shelling out
 (let [shell "/bin/bash"
       command "git describe --match 'v*.*' --abbrev=4 --dirty=**DIRTY**"
       desc-args [shell "-c" command]]
