@@ -26,9 +26,8 @@
     (and stable? clean?)))
 
 ;; Plugin task.
-(defn ^{:doc "Link project version to SCM workspace"}
-  v
-  ([] (println (leiningen.help/help-for "v")))
+(defn v
+  "Link project version to SCM workspace"
   ([project]
      (println (:workspace project))))
 
