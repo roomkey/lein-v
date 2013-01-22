@@ -7,11 +7,9 @@
 
 (fact "git version is returned if available"
   (version) => "1.0.0"
-  (provided (v-git/version) => "1.0.0"))
-
-(fact "git version with build is respected"
+  (provided (v-git/version) => "1.0.0")
   (version) => "1.0.0-1"
-  (provided (v-git/git-describe) => "v1.0.0-1-gb2e2"))
+  (provided (v-git/version) => "1.0.0-1"))
 
 (fact "file version is returned if git is unavailable"
   (version) => "1.0.0"

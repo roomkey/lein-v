@@ -1,32 +1,38 @@
 (ns leiningen.v.git
   (:import [java.lang Runtime Process]
            [java.io BufferedReader InputStreamReader])
-  (:require [clojure.java.io])
-  (:use [clojure.string :only [join]]))
+  (:require [clojure.java.io]))
 
 (defn- cmdout [o]
   (let [r (BufferedReader.
            (InputStreamReader.
             (.getInputStream o)))]
-    (join "\n" (line-seq r))))
+    (line-seq r)))
 
 (defn- cmderr [o]
   (let [r (BufferedReader.
            (InputStreamReader.
             (.getErrorStream o)))]
-    (join "\n" (line-seq r))))
+    (line-seq r)))
 
 ;; TODO: switch to jgit instead of shelling out
 (let [shell "/bin/bash"
-      command "git describe --match 'v*.*' --abbrev=4 --dirty=**DIRTY**"
-      desc-args [shell "-c" command]]
-  (defn git-describe
-   ([] (git-describe ".git"))
-   ([git-path]
-      (when (.exists (clojure.java.io/file git-path))
-        (let [desc (.. Runtime getRuntime (exec (into-array desc-args)))]
+      cmd [shell "-c"]
+      env [""]]
+  (defn- git-command
+   ([command] (git-command command ".git"))
+   ([command git-dir]
+      (when (.exists (clojure.java.io/file git-dir))
+        (let [cmd (conj cmd (str "git --git-dir=" git-dir \space command))
+              desc (.exec (Runtime/getRuntime) (into-array cmd))]
           (. desc waitFor)
           (cmdout desc))))))
+
+(defn- git-status []
+  (git-command "status -b --porcelain"))
+
+(defn- git-describe []
+  (git-command "describe --match 'v*.*' --abbrev=4 --dirty=**DIRTY**"))
 
 ;; Maven version formats are a cluster fuck.  The references below
 ;; make that very clear.  This plugin adopts the following convention
@@ -52,7 +58,7 @@
 ;; http://maven.40175.n5.nabble.com/How-to-use-SNAPSHOT-feature-together-with-BETA-qualifier-td73263.html
 (let [re #"^v((\d+)\.(\d+)(?:\.(\d+))?(?:-([a-z]\w*))?(-SNAPSHOT)?)(?:-(\d+)-(?:g[^\*]{4,}))?(\*\*DIRTY\*\*)?$"]
   (defn version []
-    (when-let [v (git-describe)]
+    (when-let [v (first (git-describe))]
       (let [[_ mmrqs major minor revision qualifier snapshot build dirty] (re-find re v)]
         (cond
          dirty dirty
@@ -60,3 +66,9 @@
          build (str mmrqs "-" build)
          mmrqs mmrqs
          :else "0.0-SNAPSHOT")))))
+
+(defn workspace-state []
+  (let [status (git-status)]
+    {:status {:tracking (filter #(re-find #"^##\s" %) status)
+              :files (remove #(re-find #"^##\s" %) status)}
+     :describe (first (git-describe))}))
