@@ -22,24 +22,16 @@
   [project]
   (println (:version project)))
 
-(defn cache
-  "Write the version of the given Leiningen project to a file-backed cache"
-  [project]
-  (let [version (:version project)]
-    (println (str "Caching version " version))
-    (leiningen.v.file/cache project)))
-
 ;; Plugin task.
 (defn ^{:doc "Manage project version"
         :help-arglists '([project subtask])
-        :subtasks [#'show #'cache]}
+        :subtasks [#'show]}
   v
   ([] (println (leiningen.help/help-for "v")))
   ([project] (v))
   ([project subtask]
      (case subtask
            "show" (show project)
-           "cache" (cache project)
            (v))))
 
 (defn update-cache-hook
