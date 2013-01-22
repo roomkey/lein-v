@@ -25,23 +25,12 @@
         clean? (empty? files)]
     (and stable? clean?)))
 
-;; Plugin's subtasks
-(defn show
-  "Display the version of the Leiningen project."
-  [project]
-  (println (:version project)))
-
 ;; Plugin task.
-(defn ^{:doc "Manage project version"
-        :help-arglists '([project subtask])
-        :subtasks [#'show]}
+(defn ^{:doc "Link project version to SCM workspace"}
   v
   ([] (println (leiningen.help/help-for "v")))
-  ([project] (v))
-  ([project subtask]
-     (case subtask
-           "show" (show project)
-           (v))))
+  ([project]
+     (println (:workspace project))))
 
 (defn update-cache-hook
   "Update the cached version available to the application"
