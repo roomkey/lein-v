@@ -7,7 +7,11 @@
 
 (defn hooks []
   (robert.hooke/add-hook #'leiningen.compile/compile leiningen.v/update-cache-hook)
-  (robert.hooke/add-hook #'leiningen.deploy/deploy leiningen.v/when-anchored-hook))
+  (robert.hooke/add-hook #'leiningen.deploy/deploy leiningen.v/when-anchored-hook)
+  (try ;; "Attempt to add a hook preventing beanstalk deploys unless workspace is anchored"
+    (eval '(do (require 'leiningen.beanstalk)
+               (robert.hooke/add-hook #'leiningen.beanstalk/deploy leiningen.v/when-anchored-hook)))
+    (catch Exception _)))
 
 (defn middleware [project]
   (let [wss (leiningen.v/workspace-state project)
