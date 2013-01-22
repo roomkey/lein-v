@@ -1,5 +1,5 @@
-(defproject com.roomkey/lein-v "3.1.0"
-  :description "A Leiningen plugin to reflect on the version of a project"
+(defproject com.roomkey/lein-v "3.2.0"
+  :description "A Leiningen plugin to reflect on the SCM workspace of a project"
   :url "https://github.com/g1nn13/lein-v"
   :plugins [[s3-wagon-private "1.1.2"]]
   :min-lein-version "2.0.0"
