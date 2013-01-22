@@ -7,4 +7,5 @@ pom.xml
 *.class
 .lein-deps-sum
 .lein-failures
-.lein-pluginspom.xml.asc
+.lein-plugins
+pom.xml.asc
