@@ -1,32 +1,18 @@
 (ns leiningen.v.git
-  (:import [java.lang Runtime Process]
-           [java.io BufferedReader InputStreamReader])
-  (:require [clojure.java.io]))
-
-(defn- cmdout [o]
-  (let [r (BufferedReader.
-           (InputStreamReader.
-            (.getInputStream o)))]
-    (line-seq r)))
-
-(defn- cmderr [o]
-  (let [r (BufferedReader.
-           (InputStreamReader.
-            (.getErrorStream o)))]
-    (line-seq r)))
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io]
+            [clojure.java.shell :as shell]))
 
 ;; TODO: switch to jgit instead of shelling out
 (let [shell "/bin/bash"
-      cmd [shell "-c"]
-      env [""]]
+      cmd [shell "-c"]]
   (defn- git-command
    ([command] (git-command command ".git"))
    ([command git-dir]
-      (when (.exists (clojure.java.io/file git-dir))
+      (when (.exists (io/file git-dir))
         (let [cmd (conj cmd (str "git --git-dir=" git-dir \space command))
-              desc (.exec (Runtime/getRuntime) (into-array cmd))]
-          (. desc waitFor)
-          (cmdout desc))))))
+              {:keys [exit out]} (apply shell/sh cmd)]
+          (when (zero? exit) (string/split-lines out)))))))
 
 (defn- git-status []
   (git-command "status -b --porcelain"))
