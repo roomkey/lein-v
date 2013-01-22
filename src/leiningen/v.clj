@@ -1,24 +1,19 @@
 (ns leiningen.v
-  (:require [leiningen.help]
-            [leiningen.v.git]
-            [leiningen.v.file]
-            [leiningen.compile]
-            [leiningen.core.main]
-            [leiningen.core.project]
-            [leiningen.test]))
+  (:require [leiningen.v.git :as git]
+            [leiningen.v.file :as file]))
 
 (defn version
   "Determine the most appropriate version for the application,
    preferrably by dynamically interrogating the environment"
   [project]
   (or
-   (leiningen.v.git/version project)
-   (leiningen.v.file/version project) ;; Not environmentally aware
+   (git/version project)
+   (file/version project) ;; Not environmentally aware
    "unknown"))
 
 (defn workspace-state
   [project]
-  (leiningen.v.git/workspace-state project))
+  (git/workspace-state project))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   (let [stable? (not (some #(re-find #"\[ahead\s\d+\]" %) tracking))
@@ -34,7 +29,7 @@
 (defn update-cache-hook
   "Update the cached version available to the application"
   [task & [project :as args]]
-  (leiningen.v.file/cache project)
+  (file/cache project)
   (apply task args))
 
 (defn when-anchored-hook
