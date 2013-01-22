@@ -1,0 +1,2 @@
+Use jgit instead of shelling out to git executable
+Find a way to reliably hook lein beanstalk deploy and block unanchored deploys
