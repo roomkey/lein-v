@@ -7,19 +7,19 @@
 
 (fact "git version is returned if available"
   (version ..project..) => "1.0.0"
-  (provided (v-git/version) => "1.0.0")
+  (provided (v-git/version ..project..) => "1.0.0")
   (version ..project..) => "1.0.0-1"
-  (provided (v-git/version) => "1.0.0-1"))
+  (provided (v-git/version ..project..) => "1.0.0-1"))
 
 (fact "file version is returned if git is unavailable"
   (version ..project..) => "1.0.0"
-  (provided (v-file/version) => "1.0.0"
-            (v-git/version) => nil))
+  (provided (v-file/version ..project..) => "1.0.0"
+            (v-git/version ..project..) => nil))
 
 (fact "default version is returned if neither git nor cache file is unavailable"
   (version ..project..) => "unknown"
-  (provided (v-file/version) => nil
-            (v-git/version) => nil))
+  (provided (v-file/version ..project..) => nil
+            (v-git/version ..project..) => nil))
 
 (defn tripwire [& _])
 

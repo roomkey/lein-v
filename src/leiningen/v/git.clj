@@ -43,7 +43,7 @@
 ;; http://dev.clojure.org/display/doc/Maven+Settings+and+Repositories
 ;; http://maven.40175.n5.nabble.com/How-to-use-SNAPSHOT-feature-together-with-BETA-qualifier-td73263.html
 (let [re #"^v((\d+)\.(\d+)(?:\.(\d+))?(?:-([a-z]\w*))?(-SNAPSHOT)?)(?:-(\d+)-(?:g[^\*]{4,}))?(\*\*DIRTY\*\*)?$"]
-  (defn version []
+  (defn version [project]
     (when-let [v (first (git-describe))]
       (let [[_ mmrqs major minor revision qualifier snapshot build dirty] (re-find re v)]
         (cond
@@ -53,7 +53,7 @@
          mmrqs mmrqs
          :else "0.0-SNAPSHOT")))))
 
-(defn workspace-state []
+(defn workspace-state [project]
   (let [status (git-status)]
     {:status {:tracking (filter #(re-find #"^##\s" %) status)
               :files (remove #(re-find #"^##\s" %) status)}

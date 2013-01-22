@@ -17,7 +17,7 @@
 
 (defn version
   "Peek into the source of the project to read the cached version"
-  []
+  [project]
   (try
     (require 'version)
     (eval 'version/version)

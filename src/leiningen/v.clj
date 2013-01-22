@@ -12,13 +12,13 @@
    preferrably by dynamically interrogating the environment"
   [project]
   (or
-   (leiningen.v.git/version)
-   (leiningen.v.file/version) ;; Not environmentally aware
+   (leiningen.v.git/version project)
+   (leiningen.v.file/version project) ;; Not environmentally aware
    "unknown"))
 
 (defn workspace-state
   [project]
-  (leiningen.v.git/workspace-state))
+  (leiningen.v.git/workspace-state project))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   (let [stable? (not (some #(re-find #"\[ahead\s\d+\]" %) tracking))
