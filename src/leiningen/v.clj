@@ -58,8 +58,9 @@
   (robert.hooke/add-hook #'leiningen.deploy/deploy when-anchored-hook)
   (try ;; "Attempt to add a hook preventing beanstalk deploys unless workspace is anchored"
     (eval '(do (require 'leiningen.beanstalk)
-               (robert.hooke/add-hook #'leiningen.beanstalk/deploy leiningen.v/when-anchored-hook)))
-    (catch Exception _)))
+               ;; due to eval, when-anchored-hook needs to be fully qualified
+               (robert.hooke/add-hook #'leiningen.beanstalk/deploy #'leiningen.v/when-anchored-hook)))
+    (catch java.io.FileNotFoundException _)))
 
 ;; Middleware
 (defn version-from-scm
