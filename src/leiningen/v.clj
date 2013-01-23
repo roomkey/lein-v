@@ -1,7 +1,9 @@
 (ns leiningen.v
   "Enrich project with SCM workspace status"
   (:require [leiningen.v.git :as git]
-            [leiningen.v.file :as file]))
+            [leiningen.v.file :as file]
+            [leiningen.compile]
+            [robert.hooke]))
 
 (defn version
   "Determine the most appropriate version for the application,
@@ -23,13 +25,7 @@
         clean? (empty? files)]
     (and stable? clean?)))
 
-;; Plugin task.
-(defn v
-  "Show SCM workspace data"
-  ([project]
-     (println (:workspace project))))
-
-(defn update-cache-hook
+(defn- update-source-hook
   "Update the cached version available to the application"
   [task & [project :as args]]
   (file/cache project)
@@ -41,3 +37,15 @@
   (if (anchored? project)
     (apply task args)
     (println "Workspace is not anchored" (:workspace project))))
+
+;; Plugin task.
+(defn v
+  "Show SCM workspace data"
+  ([project]
+     (println (:workspace project))))
+
+;; Manual hook
+(defn add-to-source
+  "Add version to source code"
+  []
+  (robert.hooke/add-hook #'leiningen.compile/compile update-source-hook))

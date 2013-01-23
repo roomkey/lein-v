@@ -1,12 +1,10 @@
 (ns lein-v.plugin
   (:require [clojure.string :as string]
             [leiningen.v]
-            [leiningen.compile]
             [leiningen.deploy]
             [robert.hooke]))
 
 (defn hooks []
-  (robert.hooke/add-hook #'leiningen.compile/compile leiningen.v/update-cache-hook)
   (robert.hooke/add-hook #'leiningen.deploy/deploy leiningen.v/when-anchored-hook)
   (try ;; "Attempt to add a hook preventing beanstalk deploys unless workspace is anchored"
     (eval '(do (require 'leiningen.beanstalk)
