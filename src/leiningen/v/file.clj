@@ -12,14 +12,14 @@
 
 (defn- cache-path
   "Return path to version cache file"
-  [{:keys [sources-path root]}]
-  (str root "/" (or (first sources-path) "src") "/version.clj"))
+  [{:keys [source-paths]}]
+  (str (first source-paths) "/version.clj"))
 
 (defn version
   "Peek into the source of the project to read the cached version"
   [project]
   (try
-    (require 'version)
+    (load-file (cache-path project))
     (eval 'version/version)
     (catch Exception e nil)))
 
