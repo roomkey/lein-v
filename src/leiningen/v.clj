@@ -18,6 +18,7 @@
   (git/workspace-state project))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
+  ;; NB this will return true for projects without a :workspace key
   (let [stable? (not (some #(re-find #"\[ahead\s\d+\]" %) tracking))
         clean? (empty? files)]
     (and stable? clean?)))

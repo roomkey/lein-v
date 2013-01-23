@@ -54,7 +54,7 @@
          :else "0.0-SNAPSHOT")))))
 
 (defn workspace-state [project]
-  (let [status (git-status)]
+  (when-let [status (git-status)]
     {:status {:tracking (filter #(re-find #"^##\s" %) status)
               :files (remove #(re-find #"^##\s" %) status)}
      :describe (first (git-describe))}))
