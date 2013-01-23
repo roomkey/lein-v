@@ -1,4 +1,5 @@
 (ns leiningen.v
+  "Enrich project with SCM workspace status"
   (:require [leiningen.v.git :as git]
             [leiningen.v.file :as file]))
 
@@ -23,7 +24,7 @@
 
 ;; Plugin task.
 (defn v
-  "Link project version to SCM workspace"
+  "Show SCM workspace data"
   ([project]
      (println (:workspace project))))
 
