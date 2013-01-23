@@ -1,12 +1,13 @@
 (ns leiningen.v
   "Enrich project with SCM workspace status"
-  (:require [leiningen.v.git :as git]
+  (:require [clojure.string :as string]
+            [leiningen.v.git :as git]
             [leiningen.v.file :as file]
             [leiningen.compile]
             [leiningen.deploy]
             [robert.hooke]))
 
-(defn version
+(defn- version
   "Determine the most appropriate version for the application,
    preferrably by dynamically interrogating the environment"
   [project]
@@ -16,7 +17,7 @@
    (:version project)
    "unknown"))
 
-(defn workspace-state
+(defn- workspace-state
   [project]
   (git/workspace-state project))
 
@@ -59,3 +60,21 @@
     (eval '(do (require 'leiningen.beanstalk)
                (robert.hooke/add-hook #'leiningen.beanstalk/deploy leiningen.v/when-anchored-hook)))
     (catch Exception _)))
+
+;; Middleware
+(defn version-from-scm
+  [project]
+  (let [version (version project)]
+    (-> project
+        (assoc-in ,, [:version] version)
+        (assoc-in ,, [:manifest "Implementation-Version"] version))))
+
+(defn add-workspace-data
+  [project]
+  (if-let [wss (workspace-state project)]
+    (-> project
+        (assoc-in ,, [:workspace] wss)
+        (assoc-in ,, [:manifest "Workspace-Description"] (:describe wss))
+        (assoc-in ,, [:manifest "Workspace-Tracking-Status"] (string/join " || " (get-in wss [:status :tracking])))
+        (assoc-in ,, [:manifest "Workspace-File-Status"] (string/join " || " (get-in wss [:status :files]))))
+    project))

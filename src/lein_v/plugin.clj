@@ -1,19 +1,10 @@
 (ns lein-v.plugin
-  (:require [clojure.string :as string]
-            [leiningen.v]))
+  (:use [leiningen.v]))
 
 (defn hooks []
-  (leiningen.v/deploy-when-anchored))
+  (deploy-when-anchored))
 
-(defn middleware [project]
-  (let [version (leiningen.v/version project)
-        project (-> project
-                    (assoc-in ,, [:version] version)
-                    (assoc-in ,, [:manifest "Implementation-Version"] version))]
-    (if-let [wss (leiningen.v/workspace-state project)]
-      (-> project
-          (assoc-in ,, [:workspace] wss)
-          (assoc-in ,, [:manifest "Workspace-Description"] (:describe wss))
-          (assoc-in ,, [:manifest "Workspace-Tracking-Status"] (string/join " || " (get-in wss [:status :tracking])))
-          (assoc-in ,, [:manifest "Workspace-File-Status"] (string/join " || " (get-in wss [:status :files]))))
-      project)))
+(defn middleware [{version :version :as project}]
+  (when-not (or (empty? version) (re-find #".*lein.*" version))
+    (println "WARNING: Future versions of lein-v will not manage this project's version automatically.  Set version string in project.clj to \"lein-v\" to ensure future compatibility."))
+  (add-workspace-data (version-from-scm project)))

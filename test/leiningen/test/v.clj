@@ -6,21 +6,19 @@
         [clojure.test]
         [midje.sweet]))
 
-(fact "git version is returned if available"
-  (version ..project..) => "1.0.0"
-  (provided (v-git/version ..project..) => "1.0.0")
-  (version ..project..) => "1.0.0-1"
-  (provided (v-git/version ..project..) => "1.0.0-1"))
+(fact "SCM version is injected if available"
+  (version-from-scm {}) => (contains {:version ..gitVersion..})
+  (provided (v-git/version (as-checker map?)) => ..gitVersion..))
 
 (fact "file version is returned if git is unavailable"
-  (version ..project..) => "1.0.0"
-  (provided (v-file/version ..project..) => "1.0.0"
-            (v-git/version ..project..) => nil))
+  (version-from-scm {}) => (contains {:version ..fileVersion..})
+  (provided (v-file/version (as-checker map?)) => ..fileVersion..
+            (v-git/version (as-checker map?)) => nil))
 
 (fact "default version is returned if neither git nor cache file is unavailable"
-  (version ..project..) => "unknown"
-  (provided (v-file/version ..project..) => nil
-            (v-git/version ..project..) => nil))
+  (version-from-scm {:version ..version..}) => (contains {:version ..version..})
+  (provided (v-file/version (as-checker map?)) => nil
+            (v-git/version (as-checker map?)) => nil))
 
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
