@@ -3,6 +3,7 @@
   (:require [leiningen.v.git :as git]
             [leiningen.v.file :as file]
             [leiningen.compile]
+            [leiningen.deploy]
             [robert.hooke]))
 
 (defn version
@@ -31,7 +32,7 @@
   (file/cache project)
   (apply task args))
 
-(defn when-anchored-hook
+(defn- when-anchored-hook
   "Run the task only when the workspace is anchored"
   [task & [project :as args]]
   (if (anchored? project)
@@ -44,8 +45,17 @@
   ([project]
      (println (:workspace project))))
 
-;; Manual hook
+;; Hooks
 (defn add-to-source
   "Add version to source code"
   []
   (robert.hooke/add-hook #'leiningen.compile/compile update-source-hook))
+
+(defn deploy-when-anchored
+  "Abort deploys unless workspace is anchored"
+  []
+  (robert.hooke/add-hook #'leiningen.deploy/deploy when-anchored-hook)
+  (try ;; "Attempt to add a hook preventing beanstalk deploys unless workspace is anchored"
+    (eval '(do (require 'leiningen.beanstalk)
+               (robert.hooke/add-hook #'leiningen.beanstalk/deploy leiningen.v/when-anchored-hook)))
+    (catch Exception _)))

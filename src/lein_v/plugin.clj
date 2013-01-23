@@ -1,15 +1,9 @@
 (ns lein-v.plugin
   (:require [clojure.string :as string]
-            [leiningen.v]
-            [leiningen.deploy]
-            [robert.hooke]))
+            [leiningen.v]))
 
 (defn hooks []
-  (robert.hooke/add-hook #'leiningen.deploy/deploy leiningen.v/when-anchored-hook)
-  (try ;; "Attempt to add a hook preventing beanstalk deploys unless workspace is anchored"
-    (eval '(do (require 'leiningen.beanstalk)
-               (robert.hooke/add-hook #'leiningen.beanstalk/deploy leiningen.v/when-anchored-hook)))
-    (catch Exception _)))
+  (leiningen.v/deploy-when-anchored))
 
 (defn middleware [project]
   (let [version (leiningen.v/version project)

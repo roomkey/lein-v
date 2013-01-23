@@ -1,6 +1,7 @@
 (ns leiningen.test.v
   (:require [leiningen.v.git :as v-git]
-            [leiningen.v.file :as v-file])
+            [leiningen.v.file :as v-file]
+            [leiningen.deploy])
   (:use [leiningen.v]
         [clojure.test]
         [midje.sweet]))
@@ -21,22 +22,23 @@
   (provided (v-file/version ..project..) => nil
             (v-git/version ..project..) => nil))
 
-(defn tripwire [& _])
-
-(fact "when-anchored-hook calls task when project is on a stable commit and clean"
+(fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
                                                                     :files []}}})
-  (when-anchored-hook tripwire ..project..) => ..something..
-  (provided (tripwire ..project..) => ..something..))
+  (do (deploy-when-anchored)
+      (leiningen.deploy/deploy ..project..)) => ..something..
+  (provided (leiningen.deploy/deploy ..project..) => ..something..))
 
-(fact "when-anchored-hook does not call task when project is not on a stable commit"
+(fact "deploy-when-anchored ensures deploy tasks are not called when project is not on a stable commit"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master...origin/master [ahead 1]"]
                                                                     :files []}}})
-  (when-anchored-hook tripwire ..project..) => anything
-  (provided (tripwire ..project..) => ..anything.. :times 0))
+  (do (deploy-when-anchored)
+      (leiningen.deploy/deploy ..project..)) => anything
+  (provided (leiningen.deploy/deploy ..project..) => ..anything.. :times 0))
 
-(fact "when-anchored-hook does not call task when project is not clean"
+(fact "deploy-when-anchored ensures deploy tasks are not called when project is not clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
                                                                     :files ["?? new-file.txt"]}}})
-  (when-anchored-hook tripwire ..project..) => anything
-  (provided (tripwire ..project..) => ..anything.. :times 0))
+  (do (deploy-when-anchored)
+      (leiningen.deploy/deploy ..project..)) => anything
+  (provided (leiningen.deploy/deploy ..project..) => ..anything.. :times 0))
