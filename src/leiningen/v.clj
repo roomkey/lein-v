@@ -43,8 +43,8 @@
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  ([project]
-     (println (:workspace project))))
+  ([{:keys [version workspace]}]
+     (println (format "Effective version: %s, SCM workspace state: %s" version workspace))))
 
 ;; Hooks
 (defn add-to-source
