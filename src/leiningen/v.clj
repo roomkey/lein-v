@@ -8,7 +8,8 @@
   [project]
   (or
    (git/version project)
-   (file/version project) ;; Not environmentally aware
+   (file/version project)
+   (:version project)
    "unknown"))
 
 (defn workspace-state
