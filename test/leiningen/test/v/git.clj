@@ -38,6 +38,13 @@
     (#'leiningen.v.git/git-describe) => (list "v1.1.1")
     (#'leiningen.v.git/git-status) => ["## master...origin/master [ahead 1]" "?? TODO.txt"]))
 
+(fact "Workspace state handles blank lines in output"
+  (workspace-state ..project..) => (contains {:status (just {:tracking (just ["## master"])
+                                                             :files empty?})})
+  (provided
+    (#'leiningen.v.git/git-describe) => (list "v1.1.1")
+    (#'leiningen.v.git/git-status) => ["## master" ""]))
+
 (fact "Workspace state shows full describe output"
   (workspace-state ..project..) => (contains {:describe "v1.1.1-45-gb639"})
   (provided

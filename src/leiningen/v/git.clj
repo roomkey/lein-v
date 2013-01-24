@@ -56,5 +56,5 @@
 (defn workspace-state [project]
   (when-let [status (git-status)]
     {:status {:tracking (filter #(re-find #"^##\s" %) status)
-              :files (remove #(re-find #"^##\s" %) status)}
+              :files (remove empty? (remove #(re-find #"^##\s" %) status))}
      :describe (first (git-describe))}))
