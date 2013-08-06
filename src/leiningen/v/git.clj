@@ -4,15 +4,14 @@
             [clojure.java.shell :as shell]))
 
 ;; TODO: switch to jgit instead of shelling out
+;; Reference: https://git.eclipse.org/r/#/c/4060/
 (let [shell "/bin/bash"
       cmd [shell "-c"]]
   (defn- git-command
-   ([command] (git-command command ".git"))
-   ([command git-dir]
-      (when (.exists (io/file git-dir))
-        (let [cmd (conj cmd (str "git --git-dir=" git-dir \space command))
-              {:keys [exit out]} (apply shell/sh cmd)]
-          (when (zero? exit) (string/split-lines out)))))))
+    [command]
+    (let [cmd (conj cmd (str "git " command))
+          {:keys [exit out]} (apply shell/sh cmd)]
+      (when (zero? exit) (string/split-lines out)))))
 
 (defn- git-status []
   (git-command "status -b --porcelain"))
