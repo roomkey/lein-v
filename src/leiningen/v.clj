@@ -21,6 +21,13 @@
   [project]
   (git/workspace-state project))
 
+(defn cache
+  "Cache the effective version for use outside the scope of leiningen evaluation"
+  [project & [dir]]
+  (let [{{describe :describe} :workspace :keys [version source-paths]} project
+        path (str (or dir (first source-paths)) "/version.clj")]
+    (file/cache path version describe)))
+
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key
   (let [stable? (not (some #(re-find #"\[ahead\s\d+\]" %) tracking))
@@ -30,7 +37,7 @@
 (defn- update-source-hook
   "Update the cached version available to the application"
   [task & [project :as args]]
-  (file/cache project)
+  (cache project)
   (apply task args))
 
 (defn- when-anchored-hook
@@ -43,13 +50,18 @@
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  ([{:keys [version workspace]}]
-     (println (format "Effective version: %s, SCM workspace state: %s" version workspace))))
+  {:subtasks [#'cache]}
+  [project & [subtask & other]]
+  (condp = subtask
+    "cache" (apply cache project other)
+    (let [{:keys [version workspace]} project]
+      (println (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
 ;; Hooks
 (defn add-to-source
   "Add version to source code"
   []
+  (println "Caching the project version with the add-to-source hook is deprecated.  Prefer\n adding [\"v\" \"cache\"] to the :prep-tasks key in project.clj")
   (robert.hooke/add-hook #'leiningen.compile/compile update-source-hook))
 
 (defn deploy-when-anchored
