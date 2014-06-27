@@ -4,8 +4,8 @@
   :plugins [[s3-wagon-private "1.1.2"]]
   :min-lein-version "2.0.0"
   :middleware [leiningen.v/version-from-scm]
-  :dependencies [[org.clojure/clojure "1.5.1"]]
-  :profiles {:dev {:dependencies [[midje "1.6.0"]]}}
+  :dependencies [[org.clojure/clojure "1.6.0"]]
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]}}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :repositories [["releases" {:url "s3p://rk-maven/releases/"}]]
