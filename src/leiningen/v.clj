@@ -14,7 +14,7 @@
   (or
    (git/version project)
    (file/version project)
-   (:version project)
+   (str (:version project))
    "unknown"))
 
 (defn- workspace-state

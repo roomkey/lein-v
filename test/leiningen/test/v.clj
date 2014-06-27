@@ -15,8 +15,8 @@
   (provided (v-file/version (as-checker map?)) => ..fileVersion..
             (v-git/version (as-checker map?)) => nil))
 
-(fact "default version is returned if neither git nor cache file is unavailable"
-  (version-from-scm {:version ..version..}) => (contains {:version ..version..})
+(fact "default version from project is returned if neither git nor cache file is available"
+  (version-from-scm {:version :lein-v}) => (contains {:version ":lein-v"})
   (provided (v-file/version (as-checker map?)) => nil
             (v-git/version (as-checker map?)) => nil))
 
