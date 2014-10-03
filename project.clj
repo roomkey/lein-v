@@ -8,5 +8,5 @@
   :profiles {:dev {:dependencies [[midje "1.6.3"]]}}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :repositories [["releases" {:url "s3p://rk-maven/releases/"}]]
+  :repositories [["releases" {:url "s3p://rk-maven-public/releases/"}]]
   :eval-in-leiningen true)
