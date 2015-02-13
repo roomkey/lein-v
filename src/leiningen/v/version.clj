@@ -38,32 +38,35 @@
 
 (defn update-version
   [update version distance sha]
+  {:pre [(string? update) (string? version) (integer? distance) (string? sha)]
+   ;;   :post [(neg? (compare (parse version) (parse %)))]
+   }
   (let [version (parse version)
         [op qualifier] (string/split update #"\s")
-;;        _ (println "****** " op qualifier " *******")
+        ;;        _ (println "****** " op qualifier " *******")
         vresult (case op
-                  "major" (do (assert (not (qualified? version))
-                                      (format "Pre-release version %s is pending" (str version)))
-                              (cond-> (level++ version 0)
-                                qualifier (qualify qualifier)))
-                  "minor" (do (assert (not (qualified? version))
-                                      (format "Pre-release version %s is pending" (str version)))
-                              (cond-> (level++ version 1)
-                                qualifier (qualify qualifier)))
-                  "patch" (do (assert (not (qualified? version))
-                                      (format "Pre-release version %s is pending" (str version)))
-                              (cond-> (level++ version 2)
-                                qualifier (qualify qualifier)))
-                  "alpha" (qualify* version "alpha")
-                  "beta" (qualify* version "beta")
-                  "rc" (qualify* version "RC")
-                  "snapshot" (if (snapshot? version)
-                               version
-                               (qualify* version "SNAPSHOT"))
-                  "release" (do (assert (qualified? version) "There is no pre-release version pending")
-                                (release version))
-                  "build" (do (assert (pos? distance) "Can't overlay versions")
-                              (-> version
-                                  (move distance)
-                                  (set-metadata sha))))]
+                  ":major" (do (assert (not (qualified? version))
+                                       (format "Pre-release version %s is pending" (str version)))
+                               (cond-> (level++ version 0)
+                                 qualifier (qualify qualifier)))
+                  ":minor" (do (assert (not (qualified? version))
+                                       (format "Pre-release version %s is pending" (str version)))
+                               (cond-> (level++ version 1)
+                                 qualifier (qualify qualifier)))
+                  ":patch" (do (assert (not (qualified? version))
+                                       (format "Pre-release version %s is pending" (str version)))
+                               (cond-> (level++ version 2)
+                                 qualifier (qualify qualifier)))
+                  ":alpha" (qualify* version "alpha")
+                  ":beta" (qualify* version "beta")
+                  ":rc" (qualify* version "RC")
+                  ":snapshot" (if (snapshot? version)
+                                version
+                                (qualify* version "SNAPSHOT"))
+                  ":release" (do (assert (qualified? version) "There is no pre-release version pending")
+                                 (release version))
+                  ":build" (do (assert (pos? distance) "Can't overlay versions")
+                               (-> version
+                                   (move distance)
+                                   (set-metadata sha))))]
     (str vresult)))
