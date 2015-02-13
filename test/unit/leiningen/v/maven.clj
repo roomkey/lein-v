@@ -47,3 +47,12 @@
   (move (parse "1.2.3-q") 4) => (as-string "1.2.3-q-4")
   (distance (parse "1.2.3-5")) => 5
   (base (parse "1.2.3-5")) => (as-string "1.2.3"))
+
+(fact "Can compare"
+  (compare (parse "1.2.3") (parse "1.2.3")) => zero?
+  (compare (parse "1.2.4") (parse "1.2.3")) => pos?
+  (compare (parse "1.2.3") (parse "1.2.3-1")) => neg?
+  (compare (parse "1.2.3-3") (parse "1.2.3-5")) => neg?
+  (compare (parse "1.2.3-beta") (parse "1.2.3")) => pos?
+  (compare (parse "1.2.3-beta") (parse "1.2.3-alpha")) => pos?
+  (compare (parse "1.2.3-0x1234") (parse "1.2.3-0x2345")) => zero?)

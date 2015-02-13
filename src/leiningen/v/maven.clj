@@ -11,6 +11,7 @@
 ;;; NB: java -jar ~/.m2/repository/org/apache/maven/maven-artifact/3.2.5/maven-artifact-3.2.5.jar <v1> <v2> ...<vn>
 (ns leiningen.v.maven
   "An implementation of lein-v version protocols that complies with Maven v3"
+  (:import [java.lang Comparable])
   (:require [clojure.string :as string]
             [leiningen.v.version.protocols :refer :all]))
 
@@ -36,6 +37,10 @@
                   qualifier (str ,, "-" (qualifier->string qualifier))
                   build (str ,, "-" build)
                   metadata (str ,, "-0x" metadata)))
+  Comparable
+  ;; TODO: implement qualifier comparison per http://maven.apache.org/ref/3.2.5/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
+  (compareTo [this other] (compare [(vec (.subversions this)) (.qualifier this) (.build this)]
+                                   [(vec (.subversions other)) (.qualifier other) (.build other)]))
   IncrementableByLevel
   (levels [this] 3) ; TODO: let this be arbitrarily large
   (level++ [this level]
