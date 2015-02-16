@@ -7,7 +7,6 @@
 ;;; https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning
 ;;; Example Versions & Interpretations:
 ;;; 1.2.3-rc.4 => major 1, minor 2, patch 3, qualifier rc incremented to 4
-;;; TODO - comparisons with special case handling for well-known qualifiers
 ;;; NB: java -jar ~/.m2/repository/org/apache/maven/maven-artifact/3.2.5/maven-artifact-3.2.5.jar <v1> <v2> ...<vn>
 (ns leiningen.v.maven
   "An implementation of lein-v version protocols that complies with Maven v3"
@@ -31,6 +30,23 @@
   [qualifier]
   (apply str qualifier))
 
+(let [qualifiers [#"(?i)a(lpha)?\d*"
+                  #"(?i)b(eta)?\d*"
+                  #"(?i)m(ilestone)?\d*"
+                  #"(?i)(rc|cr)\d*"
+                  #"(?i)snapshot\d*"
+                  #"(?i)ga|final|^$"
+                  #"(?i)sp\d*"]]
+  (defn- qindex
+    [qualifier]
+    (let [[_ q i] (re-matches #"([^\d]*)(\d*)" qualifier)
+          q (string/lower-case q)
+          q0 (str (or (first (keep-indexed #(when (re-matches %2 q) %1) qualifiers))
+                      (count qualifiers))
+                  q)
+          q1 (if (string/blank? i) 1 (Integer/parseInt i))]
+      [q0 q1])))
+
 (deftype MavenVersion [subversions qualifier build metadata]
   Object
   (toString [_] (cond-> (string/join "." subversions)
@@ -38,9 +54,8 @@
                   build (str ,, "-" build)
                   metadata (str ,, "-0x" metadata)))
   Comparable
-  ;; TODO: implement qualifier comparison per http://maven.apache.org/ref/3.2.5/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
-  (compareTo [this other] (compare [(vec (.subversions this)) (.qualifier this) (.build this)]
-                                   [(vec (.subversions other)) (.qualifier other) (.build other)]))
+  (compareTo [this other] (compare [(vec (.subversions this)) (qindex (.qualifier this)) (.build this)]
+                                   [(vec (.subversions other)) (qindex (.qualifier other)) (.build other)]))
   IncrementableByLevel
   (levels [this] 3) ; TODO: let this be arbitrarily large
   (level++ [this level]

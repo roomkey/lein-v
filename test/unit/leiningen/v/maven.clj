@@ -48,11 +48,16 @@
   (distance (parse "1.2.3-5")) => 5
   (base (parse "1.2.3-5")) => (as-string "1.2.3"))
 
-(fact "Can compare"
+(facts "Compares"
+  (fact "case insensitive"
+    (compare (parse "1.2.3-alpha") (parse "1.2.3-ALPHA")) => zero?)
   (compare (parse "1.2.3") (parse "1.2.3")) => zero?
-  (compare (parse "1.2.4") (parse "1.2.3")) => pos?
+  (compare (parse "1.2.3") (parse "1.2.4")) => neg?
   (compare (parse "1.2.3") (parse "1.2.3-1")) => neg?
   (compare (parse "1.2.3-3") (parse "1.2.3-5")) => neg?
-  (compare (parse "1.2.3-beta") (parse "1.2.3")) => pos?
-  (compare (parse "1.2.3-beta") (parse "1.2.3-alpha")) => pos?
-  (compare (parse "1.2.3-0x1234") (parse "1.2.3-0x2345")) => zero?)
+  (compare (parse "1.2.3-beta") (parse "1.2.3")) => neg?
+  (compare (parse "1.2.3-alpha") (parse "1.2.3-beta")) => neg?
+  (compare (parse "1.2.3-3-0x1234") (parse "1.2.3-3-0x2345")) => zero?
+  (compare (parse "1.1.0-beta") (parse "1.1.0-SNAPSHOT")) => neg?
+  (compare (parse "1.1.0-beta") (parse "1.1.0-beta2")) => neg?
+  (compare (parse "1.1.0-alpha2") (parse "1.1.0-beta")) => neg?)
