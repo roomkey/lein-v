@@ -14,12 +14,6 @@
   (:require [clojure.string :as string]
             [leiningen.v.version.protocols :refer :all]))
 
-(defn- integerify
-  "Parse the given string into a number, if possible"
-  [s]
-  (try (Integer/parseInt s)
-       (catch java.lang.NumberFormatException _ s)))
-
 (defn- string->qualifier
   [qstring]
   (let [[_ base i] (re-matches #"(\D+)(\d)?" qstring)
