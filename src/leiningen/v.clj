@@ -44,6 +44,7 @@
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key
+  ;; TODO: handle case where #'add-workspace-data is not in configured middleware
   (let [stable? (not-any? #(re-find #"\[ahead\s\d+\]" %) tracking)
         clean? (empty? files)]
     (and stable? clean?)))
@@ -69,6 +70,7 @@
   (condp = subtask
     "cache" (apply cache project other)
     "update" (apply update project other)
+    "assert-anchored" (assert (anchored? project) "Workspace is not clean and pushed to remote")
     (let [{:keys [version workspace]} project]
       (println (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
