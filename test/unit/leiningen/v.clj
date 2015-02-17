@@ -35,6 +35,12 @@
     (git/version) => ["1.2.3-SNAPSHOT" 3 "abcd" false]
     (git/tag anything) => ..tagResult.. :times 0))
 
+(fact "compound operation is correctly parsed"
+  (update {} :minor-alpha) => (as-string "1.3.0-alpha")
+  (provided
+    (git/version) => ["1.2.3" 3 "abcd" false]
+    (git/tag "1.3.0-alpha") => ..tagResult..))
+
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
                                                                     :files []}}})

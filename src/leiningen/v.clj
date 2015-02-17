@@ -36,11 +36,13 @@
 
 (defn update
   "Returns project's version string updated per the supplied operation"
-  [{v-str :version config :v :as project} & [op & args]]
+  [{config :v :as project} & [op]]
   (let [v (version config)
         op (or op leiningen.release/*level*)
-        v-new (apply leiningen.v.version/update v op args)]
-    (when (not= v v-new) (git/tag (str v-new)))))
+        args (string/split (name op) #"-")
+        v-new (apply leiningen.v.version/update v (keyword (first args)) (rest args))]
+    (when (not= v v-new) (git/tag (str v-new)))
+    v-new))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key
@@ -89,10 +91,10 @@
 ;; Middleware
 (defn version-from-scm
   [project]
-  (let [version (str (version project))]
+  (let [v (str (version project))]
     (-> project
-        (assoc-in ,, [:version] version)
-        (assoc-in ,, [:manifest "Implementation-Version"] version))))
+        (assoc-in ,, [:version] v)
+        (assoc-in ,, [:manifest "Implementation-Version"] v))))
 
 (defn add-workspace-data
   [project]
