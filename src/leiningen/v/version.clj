@@ -34,7 +34,8 @@
                                    (assert (not (qualified? version))
                                            (format "Pre-release version %s is pending" (str version)))
                                    (cond-> (level++ version (op {:major 0 :minor 1 :patch 2}))
-                                     (#{"alpha" "beta" "rc" "snapshot"} q) (qualify q)))
+                                     (#{"alpha" "beta"} q) (qualify q)
+                                     (#{"rc" "snapshot"} q) (qualify (string/upper-case q))))
     (#{:alpha :beta :rc} op) (qualify* version (string/lower-case (name op)))
     (#{:snapshot} op) (if (snapshot? version)
                         version

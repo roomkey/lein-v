@@ -27,7 +27,9 @@
   (update (parse "1.1.0-alpha2") :beta) => (as-string "1.1.0-beta"))
 
 (fact "Can release a snapshot version"
-  (update (parse "1.1.0-beta") :snapshot) => (as-string "1.1.0-SNAPSHOT"))
+  (update (parse "1.1.0-beta") :snapshot) => (as-string "1.1.0-SNAPSHOT")
+  (update (parse "1.1.0") :minor "snapshot") => (as-string "1.2.0-SNAPSHOT")
+  (update (parse "1.2.0-SNAPSHOT") :snapshot) => (as-string "1.2.0-SNAPSHOT"))
 
 (fact "Can release a qualified version"
   (update (parse "1.1.0-SNAPSHOT") :release) => (as-string "1.1.0"))
