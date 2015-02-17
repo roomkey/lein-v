@@ -3,19 +3,25 @@
   (:require [clojure.string :as string]
             [leiningen.v.git :as git]
             [leiningen.v.file :as file]
+            [leiningen.v.version :as version]
+            [leiningen.v.version.protocols :refer :all]
+            [leiningen.v.maven]
             [leiningen.compile]
             [leiningen.deploy]
+            [leiningen.release]
             [robert.hooke]))
 
 (defn- version
-  "Determine the most appropriate version for the application,
-   preferrably by dynamically interrogating the environment"
-  [project]
-  (or
-   (git/version project)
-   (file/version project)
-   (str (:version project))
-   "unknown"))
+  "Determine the version for the project by dynamically interrogating the environment"
+  [{parser :parser default :default :or {default "0.0.1-SNAPSHOT" parser leiningen.v.maven/parse}}]
+  (let [[base distance sha dirty] (git/version)
+        parser (eval parser)]
+    (binding [leiningen.v.version/*parser* parser]
+      (if base ;; TODO: allow implementation-specific default version
+        (cond-> (leiningen.v.version/parse base)
+          (pos? distance) (-> (move distance)
+                              (set-metadata sha)))
+        (leiningen.v.version/parse default)))))
 
 (defn- workspace-state
   [project]
@@ -27,6 +33,13 @@
   (let [{{describe :describe} :workspace :keys [version source-paths]} project
         path (str (or dir (first source-paths)) "/version.clj")]
     (file/cache path version describe)))
+
+(defn update
+  "Returns project's version string updated per the supplied operation"
+  [{v-str :version config :v :as project} & [op & args]]
+  (let [v (version config)
+        op (or op leiningen.release/*level*)]
+    (git/tag (str (apply leiningen.v.version/update v op args)))))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key
@@ -50,10 +63,11 @@
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  {:subtasks [#'cache]}
+  {:subtasks [#'cache #'update]}
   [project & [subtask & other]]
   (condp = subtask
     "cache" (apply cache project other)
+    "update" (apply update project other)
     (let [{:keys [version workspace]} project]
       (println (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
@@ -77,7 +91,7 @@
 ;; Middleware
 (defn version-from-scm
   [project]
-  (let [version (version project)]
+  (let [version (str (version project))]
     (-> project
         (assoc-in ,, [:version] version)
         (assoc-in ,, [:manifest "Implementation-Version"] version))))

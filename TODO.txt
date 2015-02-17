@@ -2,27 +2,15 @@
 1. Deprecate lein beanstalk support on blocked deploys
 1. Document (& enforce) hybrid semver/maven version number schema
 1. Support `lein release` task with repo-driven versioning
- * The project.clj configuration should look something like this:
-    :release-tasks [["vcs" "assert-committed"]
-                    ["v" "assert-pushed"] ; Already written -need to expose
-                    ["v" "assert-on-existing-snapshot-or-new-semver-component-provided"]
-                    ["v" "update-version"]
-                  ;; Uses dynmamically bound var to get supplied semver component increment.
-                  ;; When current version is -SNAPSHOT, no semver component implies don't change version (it remains X-SNAPSHOT) and,
-                  ;; consequently, subsequently skip tagging/pushing.
-                  ;; To create a pre-release, provide the usual semver component argument of the anticipated release argument
-                  ;; followed by the complete pre-release string, e.g. :minor SNAPSHOT
-;;                  ["change" "version" "leiningen.release/bump-version" "release"]
-;;                  ["vcs" "commit"]
-                  ["vcs" "tag"] ; Should use dynamically injected version -ONLY WHEN NEEDED
-                  ["vcs" "push"] ; Also pushes tags! -ONLY WHEN NEEDED
-;;                  ["deploy"]
-                  ["pprint"]
-;;                  ["change" "version" "leiningen.release/bump-version"]
-;;                  ["vcs" "commit"]
-                  ]
+* The project.clj configuration should look something like this:
+```
+:release-tasks [["vcs" "assert-committed"]
+                ["v" "update-version"] ;; compute new version & tag it
+                ["vcs" "push"] ; Also pushes tag -which is the goal here
+                ["deploy"]]
+```
 
-	* The `["vcs" "assert-committed"]` task is supported natively by leiningen on git.
+* The `["vcs" "assert-committed"]` task is supported natively by leiningen on git.
 	* The `["v" "assert-pushed"]` task is almost complete in lein-v already -it needs to be extracted into its own fn.
 	* The `["v" ""]`
 	* The `["v" "new-semver-component-provided"]` task needs to be written.  It ensures that releases can only happen once per version, excepting SNAPSHOTs.
@@ -39,6 +27,9 @@
 * (http://maven.apache.org/ref/3.2.5/maven-artifact/index.html) JACKPOT!
 * (http://maven.apache.org/ref/3.2.5/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html) DOUBLE JACKPOT
 * (https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning)
+* (http://docs.codehaus.org/display/MAVEN/Dependency+Mediation+and+Conflict+Resolution)
+* (http://dev.clojure.org/display/doc/Maven+Settings+and+Repositories)
+* (http://maven.40175.n5.nabble.com/How-to-use-SNAPSHOT-feature-together-with-BETA-qualifier-td73263.html)
 
 Guiding Principle: the version of an artifact can be completely determined by repository metadata.
 

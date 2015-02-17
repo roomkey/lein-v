@@ -1,24 +1,19 @@
 (ns leiningen.test.v
-  (:require [leiningen.v.git :as v-git]
-            [leiningen.v.file :as v-file]
-            [leiningen.deploy])
-  (:use [leiningen.v]
-        [clojure.test]
-        [midje.sweet]))
+  (:require [leiningen.v.git :as git]
+            [leiningen.deploy]
+            [leiningen.v :refer :all]
+            [clojure.test :refer :all]
+            [midje.sweet :refer :all]))
 
-(fact "SCM version is injected if available"
-  (version-from-scm {}) => (contains {:version ..gitVersion..})
-  (provided (v-git/version (as-checker map?)) => ..gitVersion..))
+(fact "git version is injected if available"
+  (version-from-scm {}) => (contains {:version "1.2.3-3-0xabcd"})
+  (provided (git/version) => ["1.2.3" 3 "abcd" true])
+  (version-from-scm {}) => (contains {:version "1.2.3"})
+  (provided (git/version) => ["1.2.3" 0 "abcd" true]))
 
-(fact "file version is returned if git is unavailable"
-  (version-from-scm {}) => (contains {:version ..fileVersion..})
-  (provided (v-file/version (as-checker map?)) => ..fileVersion..
-            (v-git/version (as-checker map?)) => nil))
-
-(fact "default version from project is returned if neither git nor cache file is available"
-  (version-from-scm {:version :lein-v}) => (contains {:version ":lein-v"})
-  (provided (v-file/version (as-checker map?)) => nil
-            (v-git/version (as-checker map?)) => nil))
+(fact "default version is returned if git version is not available"
+  (version-from-scm {:version :lein-v}) => (contains {:version "0.0.1-SNAPSHOT"})
+  (provided (git/version) => nil))
 
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]

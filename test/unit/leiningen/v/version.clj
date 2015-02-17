@@ -1,40 +1,46 @@
 (ns unit.leiningen.v.version
   (:require [leiningen.v.maven]
             [leiningen.v.version :refer :all]
-            [midje.sweet :refer :all]))
+            [midje.sweet :refer :all]
+            [midje.checking.core :refer [extended-=]]))
 
 (background (around :facts (binding [leiningen.v.version/*parser* leiningen.v.maven/parse]
                              ?form)))
 
+(defchecker as-string
+  [expected]
+  (checker [actual]
+           (extended-= (str actual) expected)))
+
 (fact "Can increment a version"
-  (update-version ":patch" "0.0.0" 3 "abcd") => "0.0.1"
-  (update-version ":minor" "0.0.1" 2 "7637") => "0.1.0"
-  (update-version ":major" "0.1.1" 8 "83f2") => "1.0.0")
+  (update (parse "0.0.0") :patch) => (as-string "0.0.1")
+  (update (parse "0.0.1") :minor) => (as-string "0.1.0")
+  (update (parse "0.1.1") :major) => (as-string "1.0.0"))
 
 (fact "Can qualify as an alpha version"
-  (update-version ":minor alpha" "1.0.0" 3 "a571") => "1.1.0-alpha")
+  (update (parse "1.0.0") :minor "alpha") => (as-string "1.1.0-alpha"))
 
 (fact "Can increment a qualified version"
-  (update-version ":alpha" "1.1.0-alpha" 2 "c520") => "1.1.0-alpha2")
+  (update (parse "1.1.0-alpha") :alpha) => (as-string "1.1.0-alpha2"))
 
 (fact "Can release a build version on a qualified version"
-  (update-version ":build" "1.1.0-alpha2" 8 "bfe6") => "1.1.0-alpha2-8-0xbfe6")
+  (update (parse "1.1.0-alpha2") :locate 8 "bfe6") => (as-string "1.1.0-alpha2-8-0xbfe6"))
 
 (fact "Can bump a qualified version"
-  (update-version ":beta" "1.1.0-alpha2" 9 "c520") => "1.1.0-beta")
+  (update (parse "1.1.0-alpha2") :beta) => (as-string "1.1.0-beta"))
 
 (fact "Can release a snapshot version"
-  (update-version ":snapshot" "1.1.0-beta" 1 "abfd") => "1.1.0-SNAPSHOT")
+  (update (parse "1.1.0-beta") :snapshot) => (as-string "1.1.0-SNAPSHOT"))
 
 (fact "Can release a qualified version"
-  (update-version ":release" "1.1.0-SNAPSHOT" 5 "a12d") => "1.1.0")
+  (update (parse "1.1.0-SNAPSHOT") :release) => (as-string "1.1.0"))
 
 (fact "Can release a build version on a simple version"
-  (update-version ":build" "1.1.0" 3 "fbcd") => "1.1.0-3-0xfbcd")
+  (update (parse "1.1.0") :locate 3 "fbcd") => (as-string "1.1.0-3-0xfbcd"))
 
 (fact "Can't decrement qualifiers"
-  (update-version ":alpha" "1.2.3-beta3-4" 3 "abcd") => (throws java.lang.AssertionError)
-  (update-version ":alpha" "1.2.3" 3 "abcd") => (throws java.lang.AssertionError))
+  (update (parse "1.2.3-beta3-4") :alpha) => (throws java.lang.AssertionError)
+  (update (parse "1.2.3") :alpha) => (throws java.lang.AssertionError))
 
 (fact "Can't drop qualifiers without an intermediate release"
-  (update-version ":major" "1.2.3-beta3" 0 "abcd") => (throws java.lang.AssertionError))
+  (update (parse "1.2.3-beta3") :major) => (throws java.lang.AssertionError))

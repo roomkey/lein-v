@@ -1,35 +1,27 @@
 (ns leiningen.test.v.git
-  (:use [leiningen.v.git]
-        [clojure.test]
-        [midje.sweet]))
+  (:require [leiningen.v.git :refer :all]
+            [clojure.test :refer :all]
+            [midje.sweet :refer :all]))
 
-(fact "git version is returned"
-  (version ..project..) => "1.0.0"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.0.0")))
+(fact "clean git version is parsed"
+  (version) => (just ["1.0.0" 4 "abcd" falsey])
+  (provided (#'leiningen.v.git/git-describe) => (list "v1.0.0-4-gabcd")))
 
-(fact "build component is determined from distance from last version tag"
-  (version ..project..) => "1.2.0-2"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.2.0-2-gfbc5"))
-  (version ..project..) => "1.1-1"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.1-1-gb639")))
+(fact "dirty repo is reflected in parsed git version"
+  (version) => (just ["1.0.0" 4 "abcd" truthy])
+  (provided (#'leiningen.v.git/git-describe) => (list "v1.0.0-4-gabcd**DIRTY**")))
 
-(fact "extra characters in SHA code don't deter us from parsing"
-  (version ..project..) => "1.7.8-2116"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.7.8-2116-g29e84")))
+(fact "git version is parsed with full (long) data"
+  (version) => (just ["1.0.0" 0 "abcd" falsey])
+  (provided (#'leiningen.v.git/git-describe) => (list "v1.0.0-0-gabcd")))
 
-(fact "dirty repo results in funky version"
-  (version ..project..) => "**DIRTY**"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.2.0-2-gfbc5**DIRTY**"))
-  (version ..project..) => "**DIRTY**"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.1**DIRTY**")))
+(fact "missing tag for git version is parsed"
+  (version) => nil?
+  (provided (#'leiningen.v.git/git-describe) => nil))
 
-(fact "SNAPSHOT versions ignore distance from last version"
-  (version ..project..) => "1.2.0-SNAPSHOT"
-  (provided (#'leiningen.v.git/git-describe) => (list "v1.2.0-SNAPSHOT-2-gfbc5")))
-
-(fact "Missing version tag results in zero version"
-  (version ..project..) => "0.0-SNAPSHOT"
-  (provided (#'leiningen.v.git/git-describe) => (list "")))
+(fact "extra characters in SHA don't deter us from parsing"
+  (version) => (just ["1.1.10" 33 "abcdef" falsey])
+  (provided (#'leiningen.v.git/git-describe) => (list "v1.1.10-33-gabcdef")))
 
 (fact "Workspace state shows tracking and file status"
   (workspace-state ..project..) => (contains {:status (just {:tracking (just ["## master...origin/master [ahead 1]"])
