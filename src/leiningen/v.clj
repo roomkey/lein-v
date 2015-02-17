@@ -20,7 +20,7 @@
       (if base ;; TODO: allow implementation-specific default version
         (cond-> (leiningen.v.version/parse base)
           (pos? distance) (-> (move distance)
-                              (set-metadata sha)))
+                              (identify sha)))
         (leiningen.v.version/parse default)))))
 
 (defn- workspace-state

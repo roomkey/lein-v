@@ -31,8 +31,8 @@
   (base [this] "Return the base which this version references")
   (distance [this] "Return the distance from the base version"))
 
-(defprotocol SupportingMetadata
-  "Metadata is additional data about the version that is not used in any computation.  Metadata never conveys to a derived version"
-  (metadata [this] "Get the metadata of this version")
-  (set-metadata [this m] "Set the metadata to the given string")
-  (clear-metadata [this] "Remove the metadata from the version"))
+(defprotocol Identifiable
+  "An identifier locates the version unambiguously in the SCM system.  Identity never conveys to a derived version"
+  (identifier [this] "Get the identifier of this version")
+  (identify [this id] "Set the identifier to the given string")
+  (clear-identifier [this] "Remove the identifier from the version"))

@@ -35,7 +35,7 @@
   (qualifier++ (parse "1.2.3")) => (throws java.lang.AssertionError))
 
 (fact "Can manage metadata"
-  (set-metadata (parse "1.2.3") "abcd") => (as-string "1.2.3+abcd")
-  (metadata (parse "1.2.3")) => nil?
-  (metadata (parse "1.2.3+ab12")) => "ab12"
-  (clear-metadata (parse "1.2.3+ab12")) => (as-string "1.2.3"))
+  (identify (parse "1.2.3") "abcd") => (as-string "1.2.3+abcd")
+  (identifier (parse "1.2.3")) => nil?
+  (identifier (parse "1.2.3+ab12")) => "ab12"
+  (clear-identifier (parse "1.2.3+ab12")) => (as-string "1.2.3"))

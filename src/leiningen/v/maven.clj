@@ -41,13 +41,13 @@
           q1 (if (string/blank? i) 1 (Integer/parseInt i))]
       [q0 q1])))
 
-(deftype MavenVersion [subversions qualifier build metadata]
+(deftype MavenVersion [subversions qualifier build id]
   Object
   (toString [this] (let [unique (not (snapshot? this))]
                      (cond-> (string/join "." subversions)
                              qualifier (str ,, "-" (qualifier->string qualifier))
                              (and unique build) (str ,, "-" build)
-                             (and unique metadata) (str ,, "-0x" metadata))))
+                             (and unique id) (str ,, "-0x" id))))
   Comparable
   (compareTo [this other] (compare [(vec (.subversions this)) (qindex (.qualifier this)) (.build this)]
                                    [(vec (.subversions other)) (qindex (.qualifier other)) (.build other)]))
@@ -79,12 +79,12 @@
     (MavenVersion. subversions qualifier distance nil))
   (base [_] (MavenVersion. subversions qualifier nil nil))
   (distance [_] build)
-  SupportingMetadata ;; Hex strings only
-  (metadata [this] metadata)
-  (set-metadata [this mstring]
-    (assert (re-matches #"[0-9a-f]+" mstring) "Metadata can only be hex strings")
-    (MavenVersion. subversions qualifier build mstring))
-  (clear-metadata [this] (MavenVersion. subversions qualifier build nil)))
+  Identifiable ;; Hex strings only
+  (identifier [this] id)
+  (identify [this id]
+    (assert (re-matches #"[0-9a-f]+" id) "Identifier can only be hex strings")
+    (MavenVersion. subversions qualifier build id))
+  (clear-identifier [this] (MavenVersion. subversions qualifier build nil)))
 
 (defn parse [vstring]
   (let [[subversions & qualifiers] (map #(string/split % #"\.") (string/split vstring #"-"))

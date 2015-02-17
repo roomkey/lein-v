@@ -40,10 +40,10 @@
                                                            (= i level) (inc el)
                                                            (> i level) 0)) subversions)]
       (SemanticVersion. subversions nil nil)))
-  SupportingMetadata
-  (metadata [this] (when (seq metadatas) (extension->string metadatas)))
-  (set-metadata [this mstring] (SemanticVersion. subversions pre-releases (string->extension mstring)))
-  (clear-metadata [this] (SemanticVersion. subversions pre-releases nil))
+  Identifiable
+  (identifier [this] (when (seq metadatas) (extension->string metadatas)))
+  (identify [this mstring] (SemanticVersion. subversions pre-releases (string->extension mstring)))
+  (clear-identifier [this] (SemanticVersion. subversions pre-releases nil))
   Qualifiable ; semver's pre-release field is an adequate conceptual approximation
   (qualify [this qstring] (SemanticVersion. subversions (string->extension qstring) metadatas))
   (qualifier [this] (extension->string pre-releases))
