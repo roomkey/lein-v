@@ -38,8 +38,9 @@
   "Returns project's version string updated per the supplied operation"
   [{v-str :version config :v :as project} & [op & args]]
   (let [v (version config)
-        op (or op leiningen.release/*level*)]
-    (git/tag (str (apply leiningen.v.version/update v op args)))))
+        op (or op leiningen.release/*level*)
+        v-new (apply leiningen.v.version/update v op args)]
+    (when (not= v v-new) (git/tag (str v-new)))))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key
