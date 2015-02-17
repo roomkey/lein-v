@@ -14,14 +14,15 @@
 (defn- version
   "Determine the version for the project by dynamically interrogating the environment"
   [{parser :parser default :default :or {default "0.0.1-SNAPSHOT" parser leiningen.v.maven/parse}}]
-  (let [[base distance sha dirty] (git/version)
+  (let [[base distance sha dirty?] (git/version)
         parser (eval parser)]
-    (binding [leiningen.v.version/*parser* parser]
-      (if base ;; TODO: allow implementation-specific default version
-        (cond-> (leiningen.v.version/parse base)
-          (pos? distance) (-> (move distance)
-                              (identify sha)))
-        (leiningen.v.version/parse default)))))
+    (when (not dirty?)
+      (binding [leiningen.v.version/*parser* parser]
+        (if base ;; TODO: allow implementation-specific default version
+          (cond-> (leiningen.v.version/parse base)
+            (pos? distance) (-> (move distance)
+                                (identify sha)))
+          (leiningen.v.version/parse default))))))
 
 (defn- workspace-state
   [project]
@@ -91,7 +92,7 @@
 ;; Middleware
 (defn version-from-scm
   [project]
-  (let [v (str (version project))]
+  (let [v (str (or (version project) "DIRTY"))]
     (-> project
         (assoc-in ,, [:version] v)
         (assoc-in ,, [:manifest "Implementation-Version"] v))))

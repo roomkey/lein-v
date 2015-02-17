@@ -23,6 +23,10 @@
   (version-from-scm {:version :lein-v}) => (contains {:version "0.0.1-SNAPSHOT"})
   (provided (git/version) => nil))
 
+(fact "dirty version marker is returned if repo is dirty"
+  (version-from-scm {:version :lein-v}) => (contains {:version "DIRTY"})
+  (provided (git/version) => ["1.2.3" 4 "8888" true]))
+
 (fact "tag is created with updated version"
   (update {} :minor) => (as-string "1.3.0")
   (provided
