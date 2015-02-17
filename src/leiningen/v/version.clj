@@ -36,7 +36,4 @@
                         version
                         (qualify* version "SNAPSHOT"))
     (#{:release} op) (do (assert (qualified? version) "There is no pre-release version pending")
-                         (release version))
-    (#{:locate} op) (-> version
-                        (move (first args))
-                        (set-metadata (second args)))))
+                         (release version))))

@@ -23,9 +23,6 @@
 (fact "Can increment a qualified version"
   (update (parse "1.1.0-alpha") :alpha) => (as-string "1.1.0-alpha2"))
 
-(fact "Can release a build version on a qualified version"
-  (update (parse "1.1.0-alpha2") :locate 8 "bfe6") => (as-string "1.1.0-alpha2-8-0xbfe6"))
-
 (fact "Can bump a qualified version"
   (update (parse "1.1.0-alpha2") :beta) => (as-string "1.1.0-beta"))
 
@@ -34,9 +31,6 @@
 
 (fact "Can release a qualified version"
   (update (parse "1.1.0-SNAPSHOT") :release) => (as-string "1.1.0"))
-
-(fact "Can release a build version on a simple version"
-  (update (parse "1.1.0") :locate 3 "fbcd") => (as-string "1.1.0-3-0xfbcd"))
 
 (fact "Can't decrement qualifiers"
   (update (parse "1.2.3-beta3-4") :alpha) => (throws java.lang.AssertionError)
