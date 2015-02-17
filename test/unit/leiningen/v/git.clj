@@ -1,4 +1,4 @@
-(ns leiningen.test.v.git
+(ns unit.leiningen.v.git
   (:require [leiningen.v.git :refer :all]
             [clojure.test :refer :all]
             [midje.sweet :refer :all]))
