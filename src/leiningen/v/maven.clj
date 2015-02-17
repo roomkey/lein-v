@@ -43,10 +43,11 @@
 
 (deftype MavenVersion [subversions qualifier build metadata]
   Object
-  (toString [_] (cond-> (string/join "." subversions)
-                  qualifier (str ,, "-" (qualifier->string qualifier))
-                  build (str ,, "-" build)
-                  metadata (str ,, "-0x" metadata)))
+  (toString [this] (let [unique (not (snapshot? this))]
+                     (cond-> (string/join "." subversions)
+                             qualifier (str ,, "-" (qualifier->string qualifier))
+                             (and unique build) (str ,, "-" build)
+                             (and unique metadata) (str ,, "-0x" metadata))))
   Comparable
   (compareTo [this other] (compare [(vec (.subversions this)) (qindex (.qualifier this)) (.build this)]
                                    [(vec (.subversions other)) (qindex (.qualifier other)) (.build other)]))

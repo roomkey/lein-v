@@ -3,26 +3,34 @@
             [leiningen.v.git :as git]
             [leiningen.deploy]
             [clojure.test :refer :all]
-            [midje.sweet :refer :all]))
+            [midje.sweet :refer :all]
+            [midje.checking.core :refer [extended-=]]))
+
+(defchecker as-string
+  [expected]
+  (checker [actual]
+           (extended-= (str actual) expected)))
 
 (fact "git version is injected if available"
   (version-from-scm {}) => (contains {:version "1.2.3-3-0xabcd"})
   (provided (git/version) => ["1.2.3" 3 "abcd" false])
   (version-from-scm {}) => (contains {:version "1.2.3"})
-  (provided (git/version) => ["1.2.3" 0 "abcd" false]))
+  (provided (git/version) => ["1.2.3" 0 "abcd" false])
+  (version-from-scm {}) => (contains {:version "1.2.3-SNAPSHOT"})
+  (provided (git/version) => ["1.2.3-SNAPSHOT" 4 "8888" false]))
 
 (fact "default version is returned if git version is not available"
   (version-from-scm {:version :lein-v}) => (contains {:version "0.0.1-SNAPSHOT"})
   (provided (git/version) => nil))
 
 (fact "tag is created with updated version"
-  (update {:version "1.2.3"} :minor) => anything
+  (update {} :minor) => (as-string "1.3.0")
   (provided
     (git/version) => ["1.2.3" 3 "abcd" false]
     (git/tag "1.3.0") => ..tagResult..))
 
 (fact "tag is not created when version does not change"
-  (update {} :snapshot) => anything
+  (update {} :snapshot) => (as-string "1.2.3-SNAPSHOT")
   (provided
     (git/version) => ["1.2.3-SNAPSHOT" 3 "abcd" false]
     (git/tag anything) => ..tagResult.. :times 0))
