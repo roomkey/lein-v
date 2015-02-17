@@ -21,10 +21,14 @@
   [vstring]
   (*parser* vstring))
 
+(defn default
+  []
+  )
+
 (defn update
   [version op & args]
   {:pre [(satisfies? leiningen.v.version.protocols/IncrementableByLevel version) (keyword? op)]
-   :post [(satisfies? leiningen.v.version.protocols/IncrementableByLevel %) (neg? (compare version %))]}
+   :post [(satisfies? leiningen.v.version.protocols/IncrementableByLevel %) ((complement pos?) (compare version %))]}
   (cond
     (#{:major :minor :patch} op) (let [q (when (seq args) (string/lower-case (first args)))]
                                    (assert (not (qualified? version))
