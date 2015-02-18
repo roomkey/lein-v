@@ -13,16 +13,16 @@
 
 (defn- version
   "Determine the version for the project by dynamically interrogating the environment"
-  [{parser :parser default :default :or {default "0.0.1-SNAPSHOT" parser leiningen.v.maven/parse}}]
+  [{parser :parser default :default :or {default leiningen.v.maven/default parser leiningen.v.maven/parse}}]
   (let [[base distance sha dirty?] (git/version)
         parser (eval parser)]
     (when (not dirty?)
       (binding [leiningen.v.version/*parser* parser]
-        (if base ;; TODO: allow implementation-specific default version
+        (if base
           (cond-> (leiningen.v.version/parse base)
             (pos? distance) (-> (move distance)
                                 (identify sha)))
-          (leiningen.v.version/parse default))))))
+          (identify default (git/sha)))))))
 
 (defn- workspace-state
   [project]

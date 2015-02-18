@@ -18,6 +18,10 @@
 (defn- git-describe []
   (git-command "describe --long --match 'v*.*' --abbrev=4 --dirty=**DIRTY**"))
 
+(defn sha
+  []
+  (first (git-command "rev-parse --short=4 HEAD")))
+
 (let [prefix "v"]
   (defn tag [v]
     (git-command (string/join " " ["tag --sign --annotate --message" (format "\"Release %s\"" v) (str prefix v)]))))

@@ -86,6 +86,9 @@
     (MavenVersion. subversions qualifier build id))
   (clear-identifier [this] (MavenVersion. subversions qualifier build nil)))
 
+(def default
+  (MavenVersion. [0 0 0] nil 0 ""))
+
 (defn parse [vstring]
   (let [[subversions & qualifiers] (map #(string/split % #"\.") (string/split vstring #"-"))
         subversions (map #(Integer/parseInt %) subversions)

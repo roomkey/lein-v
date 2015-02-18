@@ -20,8 +20,9 @@
   (provided (git/version) => ["1.2.3-SNAPSHOT" 4 "8888" false]))
 
 (fact "default version is returned if git version is not available"
-  (version-from-scm {:version :lein-v}) => (contains {:version "0.0.1-SNAPSHOT"})
-  (provided (git/version) => nil))
+  (version-from-scm {:version :lein-v}) => (contains {:version "0.0.0-0-0xabcd"})
+  (provided (git/version) => nil
+            (git/sha) => "abcd"))
 
 (fact "dirty version marker is returned if repo is dirty"
   (version-from-scm {:version :lein-v}) => (contains {:version "DIRTY"})
