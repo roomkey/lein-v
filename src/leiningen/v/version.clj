@@ -1,13 +1,7 @@
 (ns leiningen.v.version
   "Parse version numbers into malleable components"
   (:require [clojure.string :as string]
-            [version-clj.core :as ver]
-            [leiningen.v.version.protocols :refer :all]
-            [leiningen
-             [release :as release]
-             [deploy :as deploy]
-             [vcs :as vcs]
-             [change :as change]]))
+            [leiningen.v.version.protocols :refer :all]))
 
 (def ^:dynamic *parser*)
 
