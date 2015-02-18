@@ -6,7 +6,6 @@
             [leiningen.v.version :as version]
             [leiningen.v.version.protocols :refer :all]
             [leiningen.v.maven]
-            [leiningen.compile]
             [leiningen.deploy]
             [leiningen.release]
             [robert.hooke]))
