@@ -2,8 +2,13 @@
   :description "A Leiningen plugin to reflect on the SCM workspace of a project"
   :url "https://github.com/roomkey/lein-v"
   :plugins [[lein-maven-s3-wagon "0.2.4"]]
+  :release-tasks [["v" "assert-anchored"]
+                  ["v" "update"]
+                  ["vcs" "push"]
+                  ["deploy"]]
   :min-lein-version "2.0.0"
-  :middleware [leiningen.v/version-from-scm]
+  :middleware [leiningen.v/version-from-scm
+               leiningen.v/add-workspace-data]
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :profiles {:dev {:dependencies [[midje "1.6.3"]]}}
   :license {:name "Eclipse Public License"
