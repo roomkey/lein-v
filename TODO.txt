@@ -1,4 +1,4 @@
-1. Use jgit instead of shelling out to git executable
+1. Use jgit instead of shelling out to git executable (http://download.eclipse.org/jgit/site/3.6.2.201501210735-r/apidocs/index.html)
 1. Document (& enforce) hybrid semver/maven version number schema
 1. Support `lein release` task with repo-driven versioning
 * The project.clj configuration should look something like this:

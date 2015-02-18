@@ -2,8 +2,6 @@
   (:require [clojure.string :as string]
             [clojure.java.shell :as shell]))
 
-;; TODO: switch to jgit instead of shelling out
-;; Reference: https://git.eclipse.org/r/#/c/4060/
 (let [shell "/bin/bash"
       cmd [shell "-c"]]
   (defn- git-command
