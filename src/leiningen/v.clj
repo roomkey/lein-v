@@ -78,12 +78,6 @@
       (println (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
 ;; Hooks
-(defn add-to-source
-  "Add version to source code"
-  []
-  (println "Caching the project version with the add-to-source hook is deprecated.  Prefer\n adding [\"v\" \"cache\"] to the :prep-tasks key in project.clj")
-  (robert.hooke/add-hook #'leiningen.compile/compile update-source-hook))
-
 (defn deploy-when-anchored
   "Abort deploys unless workspace is anchored"
   []
