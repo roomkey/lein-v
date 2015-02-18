@@ -7,6 +7,7 @@
                   ["vcs" "push"]
                   ["deploy"]]
   :min-lein-version "2.0.0"
+  :hooks [leiningen.v/deploy-when-anchored]
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
   :dependencies [[org.clojure/clojure "1.6.0"]]
