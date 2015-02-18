@@ -62,7 +62,7 @@
   [task & [project :as args]]
   (if (anchored? project)
     (apply task args)
-    (println "Workspace is not anchored" (:workspace project))))
+    (leiningen.core.main/warn "Workspace is not anchored" (:workspace project))))
 
 ;; Plugin task.
 (defn v
@@ -74,7 +74,7 @@
     "update" (apply update project other)
     "assert-anchored" (assert (anchored? project) "Workspace is not clean and pushed to remote")
     (let [{:keys [version workspace]} project]
-      (println (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
+      (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
 ;; Hooks
 (defn deploy-when-anchored
