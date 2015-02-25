@@ -24,10 +24,10 @@ Some relevant reading:
 
 There are two lein sub-tasks within the v namespace intended for direct use:
 
-lein v show
-	Show the effective version of the project and workspace state.
+###lein v show
+Show the effective version of the project and workspace state.
 
-lein v cache
+###lein v cache
 Cache the effective version of the project to a file (default is `version.clj`) in the first source directory (typically `src`).  It is possible to have the version cached to a file automatically by defining a prep task in your project:
 
     :prep-tasks [["v" "cache" "src"]]
@@ -37,10 +37,10 @@ Through the use of the Leiningen hooks functionality, lein-v ensures that
 leiningen's own view of the current version is updated before tasks are run. Thus this
 
     (defproject my-group/my-project :lein-v
-          :plugins [[com.roomkey/lein-v "5.0.0"]]
-          ...)
+	  :plugins [[com.roomkey/lein-v "5.0.0"]]
+      ...)
 
-become this:
+becomes this:
 
     (defproject my-group/my-project "1.0.1-2-0xabcd"
       :plugins [[com.roomkey/lein-v "5.0.0"]]
@@ -56,44 +56,46 @@ As of version 5.0, lein-v adds support for leiningen's `release` task.  Specific
                     ["vcs" "push"]
                     ["deploy"]]
 
-To effect version changes, lein-v's `update-version` task sees the versioning parameter provided to lein release and operates as follows:
+To effect version changes, lein-v's `update-version` task sees the versioning parameter
+provided to lein release and operates as follows:
 
-  |current       |directive       |result          |
-  |--------------|----------------|----------------|
-  |1.0.2         |:major          |2.0.0           |
-  |1.1.4         |:minor          |1.2.0           |
-  |2.5.6         |:patch          |2.5.7           |
+|current       |directive         |result           |
+|:-------------|:-----------------|:----------------|
+|1.0.2         |`:major`          |2.0.0            |
+|1.1.4         |`:minor`          |1.2.0            |
+|2.5.6         |`:patch`          |2.5.7            |
 
-In addition to incrementing the standard numeric version components, you can qualify any of the above directives with typical qualifiers like `alpha`, `beta`, `rc`.  For example:
+In addition to incrementing the standard numeric version components, you can qualify
+any of the above directives with typical qualifiers like `alpha`, `beta`, `rc`.  For example:
 
-  |current       |directive       |result          |
-  |--------------|----------------|----------------|
-  |1.0.2         |:minor-alpha    |1.1.0-alpha     |
-  |4.2.8         |:major-rc       |5.0.0-RC        |
+|current       |directive         |result           |
+|--------------|------------------|-----------------|
+|1.0.2         |:minor-alpha      |1.1.0-alpha      |
+|4.2.8         |:major-rc         |5.0.0-RC         |
 
-When the current version is a qualified version, you can increment the current qualifier, advance to the next qualifier or simply release an unqualified version.  Here are some examples:
+When the current version is a qualified version, you can increment the current qualifier,
+advance to the next qualifier or simply release an unqualified version.  Here are some examples:
 
-  |current       |directive       |result          |
-  |--------------|----------------|----------------|
-  |1.0.2-alpha   |:alpha          |1.0.2-alpha2    |
-  |1.0.2-alpha   |:beta           |1.0.2-beta      |
-  |1.0.2-beta    |:rc             |1.0.2-rc        |
-  |1.0.2-rc      |:rc             |1.0.2-rc2       |
-  |3.2.0-rc2     |:release        |3.2.0           |
+|current       |directive         |result           |
+|--------------|------------------|-----------------|
+|1.0.2-alpha   |:alpha            |1.0.2-alpha2     |
+|1.0.2-alpha   |:beta             |1.0.2-beta       |
+|1.0.2-beta    |:rc               |1.0.2-rc         |
+|1.0.2-rc      |:rc               |1.0.2-rc2        |
+|3.2.0-rc2     |:release          |3.2.0            |
 
 Snapshot versions are similar, but the resulting version is never changed.
 
-  |current       |directive       |result          |
-  |--------------|----------------|----------------|
-  |3.2.0         |:minor-snapshot |3.3.0-SNAPSHOT  |
-  |3.3.0-SNAPSHOT|:snapshot       |3.3.0-SNAPSHOT  |
-  |3.3.0-SNAPSHOT|:release        |3.3.0           |
-
-In the continuing quest to remove barriers to releasing often, it is possible to release a version
+|current       |directive         |result           |
+|--------------|------------------|-----------------|
+|3.2.0         |:minor-snapshot   |3.3.0-SNAPSHOT   |
+|3.3.0-SNAPSHOT|:snapshot         |3.3.0-SNAPSHOT   |
+|3.3.0-SNAPSHOT|:release          |3.3.0            |
 
 Finally, lein-v enforces some common-sense rules:
 
-* For commits without a version tag, the base version will be extended with the commit distance from HEAD to the most recent version tag (looking towards the root of the tree) and the unique SHA prefix of the commit.
+* For commits without a version tag, the base version will be extended with the commit distance from
+HEAD to the most recent version tag (looking towards the root of the tree) and the unique SHA prefix of the commit.
 * You can never go backwards with versions.  This includes qualifiers, which are orderd as follows:
   1. `alpha`
   2. `beta`
