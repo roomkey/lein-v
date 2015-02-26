@@ -2,24 +2,6 @@
 
 Drive leiningen project version from git instead of the other way around.
 
-Some relevant reading:
-
-* (<http://maven.apache.org/ref/3.2.5/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html>)
-* (<http://www.sonatype.com/books/mvnref-book/reference/pom-relationships-sect-pom-syntax.html>)
-* (<http://semver.org/>)
-* (<http://javamoods.blogspot.com/2010/10/world-of-versioning.html>)
-* (<http://download.eclipse.org/aether/aether-core/1.0.1/apidocs/org/eclipse/aether/util/version/GenericVersionScheme.html>)
-* (<http://git.eclipse.org/c/aether/aether-core.git/tree/aether-util/src/main/java/org/eclipse/aether/util/version/GenericVersion.java>)
-* (<http://semver.org/>)
-* (<http://books.sonatype.com/mvnref-book/reference/pom-relationships-sect-pom-syntax.html#pom-reationships-sect-versions>)
-* (<http://mojo.codehaus.org/versions-maven-plugin/version-rules.html>)
-* (<http://maven.40175.n5.nabble.com/How-to-use-alternative-version-numbering-scheme-td123806.html>)
-* (<http://maven.apache.org/ref/3.2.5/maven-artifact/index.html>)
-* (<https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning>)
-* (<http://docs.codehaus.org/display/MAVEN/Dependency+Mediation+and+Conflict+Resolution>)
-* (<http://dev.clojure.org/display/doc/Maven+Settings+and+Repositories>)
-* (<http://maven.40175.n5.nabble.com/How-to-use-SNAPSHOT-feature-together-with-BETA-qualifier-td73263.html>)
-
 ## Task Usage ##
 
 There are two lein sub-tasks within the v namespace intended for direct use:
@@ -110,6 +92,24 @@ lein-v (most likely something like "1.0.1-2-0xabcd").
 
 Note: you can provide your own implementation of many of these rules.  See the source code for details
 on defining data types adhering to the protocols in leiningein.v.protocols.
+
+### References and Relevant Reading ###
+
+* (<http://maven.apache.org/ref/3.2.5/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html>)
+* (<http://www.sonatype.com/books/mvnref-book/reference/pom-relationships-sect-pom-syntax.html>)
+* (<http://semver.org/>)
+* (<http://javamoods.blogspot.com/2010/10/world-of-versioning.html>)
+* (<http://download.eclipse.org/aether/aether-core/1.0.1/apidocs/org/eclipse/aether/util/version/GenericVersionScheme.html>)
+* (<http://git.eclipse.org/c/aether/aether-core.git/tree/aether-util/src/main/java/org/eclipse/aether/util/version/GenericVersion.java>)
+* (<http://semver.org/>)
+* (<http://books.sonatype.com/mvnref-book/reference/pom-relationships-sect-pom-syntax.html#pom-reationships-sect-versions>)
+* (<http://mojo.codehaus.org/versions-maven-plugin/version-rules.html>)
+* (<http://maven.40175.n5.nabble.com/How-to-use-alternative-version-numbering-scheme-td123806.html>)
+* (<http://maven.apache.org/ref/3.2.5/maven-artifact/index.html>)
+* (<https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning>)
+* (<http://docs.codehaus.org/display/MAVEN/Dependency+Mediation+and+Conflict+Resolution>)
+* (<http://dev.clojure.org/display/doc/Maven+Settings+and+Repositories>)
+* (<http://maven.40175.n5.nabble.com/How-to-use-SNAPSHOT-feature-together-with-BETA-qualifier-td73263.html>)
 
 ## License ##
 
