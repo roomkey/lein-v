@@ -52,7 +52,7 @@ Assuming that there is a git tag `v1.0.1` on the commit `HEAD~~`, and that the S
 As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update-version` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningein user profile) as follows:
 
     :release-tasks [["vcs" "assert-committed"]
-                    ["v" "update-version"] ;; compute new version & tag it
+                    ["v" "update"] ;; compute new version & tag it
                     ["vcs" "push"]
                     ["deploy"]]
 
@@ -70,27 +70,27 @@ any of the above directives with typical qualifiers like `alpha`, `beta`, `rc`. 
 
 |current       |directive         |result           |
 |--------------|------------------|-----------------|
-|1.0.2         |:minor-alpha      |1.1.0-alpha      |
-|4.2.8         |:major-rc         |5.0.0-RC         |
+|1.0.2         |`:minor-alpha`    |1.1.0-alpha      |
+|4.2.8         |`:major-rc`       |5.0.0-RC         |
 
 When the current version is a qualified version, you can increment the current qualifier,
 advance to the next qualifier or simply release an unqualified version.  Here are some examples:
 
 |current       |directive         |result           |
 |--------------|------------------|-----------------|
-|1.0.2-alpha   |:alpha            |1.0.2-alpha2     |
-|1.0.2-alpha   |:beta             |1.0.2-beta       |
-|1.0.2-beta    |:rc               |1.0.2-rc         |
-|1.0.2-rc      |:rc               |1.0.2-rc2        |
-|3.2.0-rc2     |:release          |3.2.0            |
+|1.0.2-alpha   |`:alpha`          |1.0.2-alpha2     |
+|1.0.2-alpha   |`:beta`           |1.0.2-beta       |
+|1.0.2-beta    |`:rc`             |1.0.2-rc         |
+|1.0.2-rc      |`:rc`             |1.0.2-rc2        |
+|3.2.0-rc2     |`:release`        |3.2.0            |
 
 Snapshot versions are similar, but the resulting version is never changed.
 
 |current       |directive         |result           |
 |--------------|------------------|-----------------|
-|3.2.0         |:minor-snapshot   |3.3.0-SNAPSHOT   |
-|3.3.0-SNAPSHOT|:snapshot         |3.3.0-SNAPSHOT   |
-|3.3.0-SNAPSHOT|:release          |3.3.0            |
+|3.2.0         |`:minor-snapshot` |3.3.0-SNAPSHOT   |
+|3.3.0-SNAPSHOT|`:snapshot`       |3.3.0-SNAPSHOT   |
+|3.3.0-SNAPSHOT|`:release`        |3.3.0            |
 
 Finally, lein-v enforces some common-sense rules:
 
@@ -101,10 +101,15 @@ HEAD to the most recent version tag (looking towards the root of the tree) and t
   2. `beta`
   3. `rc`
   4. `snapshot`
-* When a git repo is first used with lein-v and has no version tags, the default version is 0.0.0.
+* When a git repo is first used with lein-v and has no version tags, the default base version is 0.0.0, and it
+  is reported with a zero distance and the relevant SHA (0.0.0-0-0xabcd).
 * When tags are created in the git repo, they are prefixed with the letter 'v'.
 
-Note that you can provide your own implementation of many of these rules.  See the source code for details on defining data types adhering to the protocols in leiningein.v.protocols.
+It is still possible to do a raw `lein deploy`, in which case the version will be that determined by
+lein-v (most likely something like "1.0.1-2-0xabcd").
+
+Note: you can provide your own implementation of many of these rules.  See the source code for details
+on defining data types adhering to the protocols in leiningein.v.protocols.
 
 ## License ##
 
