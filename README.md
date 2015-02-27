@@ -31,7 +31,7 @@ becomes this:
 Assuming that there is a git tag `v1.0.1` on the commit `HEAD~~`, and that the SHA of `HEAD` is uniquely identified by `abcd`.  This behavior is automatically enabled whenever lein-v finds the project version to be the keyword `:lein-v`.
 
 ## Support for lein release ##
-As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update-version` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningein user profile) as follows:
+As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningein user profile) as follows:
 
     :release-tasks [["vcs" "assert-committed"]
                     ["v" "update"] ;; compute new version & tag it
