@@ -1,2 +1,1 @@
-Use jgit instead of shelling out to git executable
-Find a way to reliably hook lein beanstalk deploy and block unanchored deploys
+1. Use jgit instead of shelling out to git executable (http://download.eclipse.org/jgit/site/3.6.2.201501210735-r/apidocs/index.html)

@@ -1,4 +1,4 @@
-(ns leiningen.test.v.file
+(ns unit.leiningen.v.file
   (:use [leiningen.v.file]
         [clojure.test]
         [midje.sweet]))

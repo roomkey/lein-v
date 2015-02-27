@@ -3,19 +3,25 @@
   (:require [clojure.string :as string]
             [leiningen.v.git :as git]
             [leiningen.v.file :as file]
-            [leiningen.compile]
+            [leiningen.v.version :as version]
+            [leiningen.v.version.protocols :refer :all]
+            [leiningen.v.maven]
             [leiningen.deploy]
+            [leiningen.release]
             [robert.hooke]))
 
 (defn- version
-  "Determine the most appropriate version for the application,
-   preferrably by dynamically interrogating the environment"
-  [project]
-  (or
-   (git/version project)
-   (file/version project)
-   (str (:version project))
-   "unknown"))
+  "Determine the version for the project by dynamically interrogating the environment"
+  [{parser :parser default :default :or {default leiningen.v.maven/default parser leiningen.v.maven/parse}}]
+  (let [[base distance sha dirty?] (git/version)
+        parser (eval parser)]
+    (when (not dirty?)
+      (binding [leiningen.v.version/*parser* parser]
+        (if base
+          (cond-> (leiningen.v.version/parse base)
+            (pos? distance) (-> (move distance)
+                                (identify sha)))
+          (identify default (git/sha)))))))
 
 (defn- workspace-state
   [project]
@@ -28,8 +34,19 @@
         path (str (or dir (first source-paths)) "/version.clj")]
     (file/cache path version describe)))
 
+(defn update
+  "Returns project's version string updated per the supplied operation"
+  [{config :v :as project} & [op]]
+  (let [v (version config)
+        op (or op leiningen.release/*level*)
+        args (string/split (name op) #"-")
+        v-new (apply leiningen.v.version/update v (keyword (first args)) (rest args))]
+    (when (not= v v-new) (git/tag (str v-new)))
+    v-new))
+
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key
+  ;; TODO: handle case where #'add-workspace-data is not in configured middleware
   (let [stable? (not-any? #(re-find #"\[ahead\s\d+\]" %) tracking)
         clean? (empty? files)]
     (and stable? clean?)))
@@ -45,42 +62,33 @@
   [task & [project :as args]]
   (if (anchored? project)
     (apply task args)
-    (println "Workspace is not anchored" (:workspace project))))
+    (leiningen.core.main/warn "Workspace is not anchored" (:workspace project))))
 
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  {:subtasks [#'cache]}
+  {:subtasks [#'cache #'update]}
   [project & [subtask & other]]
   (condp = subtask
     "cache" (apply cache project other)
+    "update" (apply update project other)
+    "assert-anchored" (assert (anchored? project) "Workspace is not clean and pushed to remote")
     (let [{:keys [version workspace]} project]
-      (println (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
+      (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
 ;; Hooks
-(defn add-to-source
-  "Add version to source code"
-  []
-  (println "Caching the project version with the add-to-source hook is deprecated.  Prefer\n adding [\"v\" \"cache\"] to the :prep-tasks key in project.clj")
-  (robert.hooke/add-hook #'leiningen.compile/compile update-source-hook))
-
 (defn deploy-when-anchored
   "Abort deploys unless workspace is anchored"
   []
-  (robert.hooke/add-hook #'leiningen.deploy/deploy when-anchored-hook)
-  (try ;; "Attempt to add a hook preventing beanstalk deploys unless workspace is anchored"
-    (eval '(do (require 'leiningen.beanstalk)
-               ;; due to eval, when-anchored-hook needs to be fully qualified
-               (robert.hooke/add-hook #'leiningen.beanstalk/deploy #'leiningen.v/when-anchored-hook)))
-    (catch java.io.FileNotFoundException _)))
+  (robert.hooke/add-hook #'leiningen.deploy/deploy when-anchored-hook))
 
 ;; Middleware
 (defn version-from-scm
   [project]
-  (let [version (version project)]
+  (let [v (str (or (version project) "DIRTY"))]
     (-> project
-        (assoc-in ,, [:version] version)
-        (assoc-in ,, [:manifest "Implementation-Version"] version))))
+        (assoc-in ,, [:version] v)
+        (assoc-in ,, [:manifest "Implementation-Version"] v))))
 
 (defn add-workspace-data
   [project]
