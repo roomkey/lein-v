@@ -11,7 +11,12 @@
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
   :dependencies [[org.clojure/clojure "1.6.0"]]
-  :profiles {:dev {:dependencies [[midje "1.6.3"]]}}
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]
+                   :eastwood {:config-files []
+                              :exclude-linters []
+                              ;:add-linters [:unused-namespaces]
+                              :source-paths ["src"] ;; somehow "test" sneaks in anyway, so...
+                              :exclude-namespaces [:test-paths]}}}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :repositories [["rk-public" {:url "http://rk-maven-public.s3-website-us-east-1.amazonaws.com/releases/"}]
