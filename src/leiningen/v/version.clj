@@ -6,6 +6,7 @@
 (def ^:dynamic *parser*)
 
 (defn- qualify*
+  "If version is already qualified with qualifier, increment the qualifier index, otherwise advance to qualifier."
   [v q]
   (if (= (qualifier v) q)
     (qualifier++ v)
@@ -15,11 +16,8 @@
   [vstring]
   (*parser* vstring))
 
-(defn default
-  []
-  )
-
 (defn update
+  "Return an updated (newer) version based on the supplied operation"
   [version op & args]
   {:pre [(satisfies? leiningen.v.version.protocols/IncrementableByLevel version) (keyword? op)]
    :post [(satisfies? leiningen.v.version.protocols/IncrementableByLevel %) ((complement pos?) (compare version %))]}
