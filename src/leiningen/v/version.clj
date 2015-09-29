@@ -1,5 +1,6 @@
 (ns leiningen.v.version
   "Parse version numbers into malleable components"
+  (:refer-clojure :exclude [update])
   (:require [clojure.string :as string]
             [leiningen.v.version.protocols :refer :all]))
 

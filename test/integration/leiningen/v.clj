@@ -1,4 +1,5 @@
 (ns integration.leiningen.v
+  (:refer-clojure :exclude [update])
   (:require [leiningen.v :refer :all]
             [leiningen.v.git :as git]
             [leiningen.v.file :as file]

@@ -1,4 +1,5 @@
 (ns unit.leiningen.v.version
+  (:refer-clojure :exclude [update])
   (:require [leiningen.v.maven]
             [leiningen.v.version :refer :all]
             [midje.sweet :refer :all]

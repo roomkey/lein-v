@@ -1,5 +1,6 @@
 (ns leiningen.v
   "Enrich project with SCM workspace status"
+  (:refer-clojure :exclude [update])
   (:require [clojure.string :as string]
             [leiningen.v.git :as git]
             [leiningen.v.file :as file]
