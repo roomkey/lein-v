@@ -1,7 +1,6 @@
 (defproject com.roomkey/lein-v :lein-v
   :description "A Leiningen plugin to reflect on the SCM workspace of a project"
   :url "https://github.com/roomkey/lein-v"
-  :plugins [[lein-maven-s3-wagon "0.2.4"]]
   :release-tasks [["v" "assert-anchored"]
                   ["v" "update"]
                   ["vcs" "push"]
