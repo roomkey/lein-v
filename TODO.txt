@@ -1,1 +1,4 @@
-1. Use jgit instead of shelling out to git executable (http://download.eclipse.org/jgit/site/3.6.2.201501210735-r/apidocs/index.html)
+1. Use jgit instead of shelling out to git executable
+   * http://download.eclipse.org/jgit/site/4.1.0.201509280440-r/apidocs/index.html
+   * https://github.com/centic9/jgit-cookbook
+2. Vomit severely when unable to create version tag
