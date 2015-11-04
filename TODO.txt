@@ -2,3 +2,4 @@
    * http://download.eclipse.org/jgit/site/4.1.0.201509280440-r/apidocs/index.html
    * https://github.com/centic9/jgit-cookbook
 2. Vomit severely when unable to create version tag
+3. Handle not-a-git-repo or no-version-tag-in-log
