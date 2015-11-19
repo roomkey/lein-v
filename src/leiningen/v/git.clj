@@ -1,14 +1,17 @@
 (ns leiningen.v.git
   (:require [clojure.string :as string]
-            [clojure.java.shell :as shell]))
+            [clojure.java.shell :as shell]
+            [leiningen.core.main :as lein]))
 
 (let [shell "/bin/bash"
       cmd [shell "-c"]]
   (defn- git-command
     [command]
     (let [cmd (conj cmd (str "git " command))
-          {:keys [exit out]} (apply shell/sh cmd)]
-      (when (zero? exit) (string/split-lines out)))))
+          {:keys [exit out err]} (apply shell/sh cmd)]
+      (if (zero? exit)
+        (string/split-lines out)
+        (do (lein/warn err) nil)))))
 
 (defn- git-status []
   (git-command "status -b --porcelain"))
