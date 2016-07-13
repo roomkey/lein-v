@@ -36,3 +36,9 @@
   (identifier [this] "Get the identifier of this version")
   (identify [this id] "Set the identifier to the given string")
   (clear-identifier [this] "Remove the identifier from the version"))
+
+(defprotocol Dirtyable
+  "Dirty is the state wherein the version is polluted by uncommited/unversioned source"
+  ;; Semantically, dirty versions aren't really even versions.  But they are practical for development...
+  (dirty? [this] "Is this version dirty?")
+  (dirty [this] "Mark this version as dirty"))
