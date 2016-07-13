@@ -55,6 +55,9 @@
     (let [pre-releases (update-in (vec pre-releases) [1] (fnil inc 1))] ; use implicit 1-based numbering
       (SemanticVersion. subversions pre-releases nil))))
 
+(def default
+  (SemanticVersion. [0 1 0] [] nil))
+
 (defn parse [vstring]
   (let [re #"(\d+)\.(\d+)\.(\d+)((?:-)([\w\.\-]+))?((?:\+)([\w\.\-]+))?"
         [_ major minor patch _ pre-release _ metadata] (re-matches re vstring)
