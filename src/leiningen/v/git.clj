@@ -21,7 +21,7 @@
   (git-command "status -b --porcelain"))
 
 (defn- git-describe []
-  (git-command (format "describe --long --match '%s*.*' --abbrev=%d --dirty=-%s"
+  (git-command (format "describe --long --match '%s*.*' --abbrev=%d --dirty=-%s --always"
                        *prefix* *min-sha-length* *dirty-mark*)))
 
 (defn sha
@@ -35,11 +35,13 @@
 
 (defn version
   []
-  (let [re (re-pattern (format "^%s(.+)-(\\d+)-g([^\\-]{%d,})?(?:-(%s))?$"
-                               *prefix* *min-sha-length* *dirty-mark*))]
+  (let [re0 (re-pattern (format "^%s(.+)-(\\d+)-g([^\\-]{%d,})?(?:-(%s))?$"
+                                *prefix* *min-sha-length* *dirty-mark*))
+        re1 (re-pattern (format "^(Z)?(Z)?([a-z0-9]{%d,})(?:-(%s))?$"
+                                *min-sha-length* *dirty-mark*))]
     (when-let [v (first (git-describe))]
-      (let [[_ base distance sha dirty] (re-find re v)]
-        (when base [base (Integer/parseInt distance) sha (boolean dirty)])))))
+      (let [[_ base distance sha dirty] (or (re-find re0 v) (re-find re1 v))]
+        [base (when distance (Integer/parseInt distance)) sha (boolean dirty)]))))
 
 (defn workspace-state [project]
   (when-let [status (git-status)]

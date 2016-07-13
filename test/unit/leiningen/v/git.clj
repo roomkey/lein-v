@@ -10,16 +10,28 @@
       (provided (#'leiningen.v.git/git-describe) => (list "v1.0.0-4-gabcd")))
 
 (fact "dirty repo is reflected in parsed git version"
-      (version) => (just ["1.0.0" 27 "abcde" truthy])
+      (version) => (just ["1.0.0" 27 "abcd" truthy])
       (provided
        (#'leiningen.v.git/git-command (as-checker string?))
-       => [(format "%s1.0.0-27-gabcde-%s" *prefix* *dirty-mark*)]))
+       => [(format "%s1.0.0-27-g%s-%s" *prefix* (subs "abcdef0123456789" 0 *min-sha-length*) *dirty-mark*)]))
 
 (fact "git version is parsed with full (long) data"
   (version) => (just ["1.0.0" 0 "abcd" falsey])
   (provided (#'leiningen.v.git/git-describe) => (list "v1.0.0-0-gabcd")))
 
-(fact "missing tag for git version is parsed"
+(fact "missing tag and fallback is parsed"
+      (version) => (just [nil nil "abcd" false])
+      (provided
+       (#'leiningen.v.git/git-command (as-checker string?))
+       => [(format "%s" (subs "abcdef0123456789" 0 *min-sha-length*))]))
+
+(fact "dirty missing tag and fallback is parsed"
+      (version) => (just [nil nil "abcd" true])
+      (provided
+       (#'leiningen.v.git/git-command (as-checker string?))
+       => [(format "%s-%s" (subs "abcdef0123456789" 0 *min-sha-length*) *dirty-mark*)]))
+
+(fact "uncommited or nonexistant repo error is handled"
   (version) => nil?
   (provided (#'leiningen.v.git/git-describe) => nil))
 
