@@ -3,6 +3,10 @@
             [clojure.java.shell :as shell]
             [leiningen.core.main :as lein]))
 
+(def ^:dynamic *prefix* "v")
+(def ^:dynamic *min-sha-length* 4)
+(def ^:dynamic *dirty-mark* "DIRTY")
+
 (let [shell "/bin/bash"
       cmd [shell "-c"]]
   (defn- git-command
@@ -17,22 +21,25 @@
   (git-command "status -b --porcelain"))
 
 (defn- git-describe []
-  (git-command "describe --long --match 'v*.*' --abbrev=4 --dirty=**DIRTY**"))
+  (git-command (format "describe --long --match '%s*.*' --abbrev=%d --dirty=-%s"
+                       *prefix* *min-sha-length* *dirty-mark*)))
 
 (defn sha
   []
-  (first (git-command "rev-parse --short=4 HEAD")))
+  (first (git-command (format "rev-parse --short=%d HEAD" *min-sha-length*))))
 
 (let [prefix "v"]
   (defn tag [v]
-    (git-command (string/join " " ["tag --sign --annotate --message" (format "\"Release %s\"" v) (str prefix v)]))))
+    (git-command (string/join " " ["tag --sign --annotate --message" (format "\"Release %s\"" v)
+                                   (str *prefix* v)]))))
 
-(let [re #"^v(.+)-(\d+)-g([^\*]{4,})?(\*\*DIRTY\*\*)?$"]
-  (defn version
-    []
+(defn version
+  []
+  (let [re (re-pattern (format "^%s(.+)-(\\d+)-g([^\\-]{%d,})?(?:-(%s))?$"
+                               *prefix* *min-sha-length* *dirty-mark*))]
     (when-let [v (first (git-describe))]
       (let [[_ base distance sha dirty] (re-find re v)]
-        (when base [base (Integer/parseInt distance) sha dirty])))))
+        (when base [base (Integer/parseInt distance) sha (boolean dirty)])))))
 
 (defn workspace-state [project]
   (when-let [status (git-status)]
