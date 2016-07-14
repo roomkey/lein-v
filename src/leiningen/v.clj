@@ -86,7 +86,7 @@
 ;; Middleware
 (defn version-from-scm
   [project]
-  (let [v (str (or (version project) "DIRTY"))]
+  (let [v (str (or (version (:v project)) "DIRTY"))]
     (-> project
         (assoc-in ,, [:version] v)
         (assoc-in ,, [:manifest "Implementation-Version"] v))))
