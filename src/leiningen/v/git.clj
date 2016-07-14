@@ -17,6 +17,10 @@
         (string/split-lines out)
         (do (lein/warn err) nil)))))
 
+(defn- root-distance
+  []
+  (count (git-command (format "rev-list HEAD"))))
+
 (defn- git-status []
   (git-command "status -b --porcelain"))
 
@@ -37,11 +41,12 @@
   []
   (let [re0 (re-pattern (format "^%s(.+)-(\\d+)-g([^\\-]{%d,})?(?:-(%s))?$"
                                 *prefix* *min-sha-length* *dirty-mark*))
-        re1 (re-pattern (format "^(Z)?(Z)?([a-z0-9]{%d,})(?:-(%s))?$"
+        re1 (re-pattern (format "^(Z)?(Z)?([a-z0-9]{%d,})(?:-(%s))?$" ; fallback when no matching tag
                                 *min-sha-length* *dirty-mark*))]
     (when-let [v (first (git-describe))]
       (let [[_ base distance sha dirty] (or (re-find re0 v) (re-find re1 v))]
-        [base (when distance (Integer/parseInt distance)) sha (boolean dirty)]))))
+        (let [distance (or (when distance (Integer/parseInt distance)) (root-distance))]
+          [base distance sha (boolean dirty)])))))
 
 (defn workspace-state [project]
   (when-let [status (git-status)]
