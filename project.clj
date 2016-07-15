@@ -9,8 +9,8 @@
   :hooks [leiningen.v/deploy-when-anchored]
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
-  :dependencies [[org.clojure/clojure "1.7.0"]]
-  :profiles {:dev {:dependencies [[midje "1.7.0"]]
+  :dependencies [[org.clojure/clojure "1.8.0"]]
+  :profiles {:dev {:dependencies [[midje "1.8.3"]]
                    :eastwood {:config-files []
                               :exclude-linters []
                               ;:add-linters [:unused-namespaces]
