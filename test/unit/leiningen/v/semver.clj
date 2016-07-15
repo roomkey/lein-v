@@ -37,5 +37,4 @@
 (fact "Can manage metadata"
   (identify (parse "1.2.3") "abcd") => (as-string "1.2.3+abcd")
   (identifier (parse "1.2.3")) => nil?
-  (identifier (parse "1.2.3+ab12")) => "ab12"
-  (clear-identifier (parse "1.2.3+ab12")) => (as-string "1.2.3"))
+  (identifier (parse "1.2.3+ab12")) => "ab12")

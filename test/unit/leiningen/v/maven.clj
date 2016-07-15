@@ -37,8 +37,7 @@
 (fact "Can manage identity"
   (identify (parse "1.2.3") "abcd") => (as-string "1.2.3-0xabcd")
   (identifier (parse "1.2.3")) => nil?
-  (identifier (parse "1.2.3-0xab12")) => "ab12"
-  (clear-identifier (parse "1.2.3-0xab12")) => (as-string "1.2.3"))
+  (identifier (parse "1.2.3-0xab12")) => "ab12")
 
 (fact "Can index by distance"
   (move (parse "1.2.3") 4) => (as-string "1.2.3-4")

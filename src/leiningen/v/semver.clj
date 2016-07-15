@@ -43,7 +43,6 @@
   Identifiable
   (identifier [this] (when (seq metadatas) (extension->string metadatas)))
   (identify [this mstring] (SemanticVersion. subversions pre-releases (string->extension mstring)))
-  (clear-identifier [this] (SemanticVersion. subversions pre-releases nil))
   Qualifiable ; semver's pre-release field is an adequate conceptual approximation
   (qualify [this qstring] (SemanticVersion. subversions (string->extension qstring) metadatas))
   (qualifier [this] (extension->string pre-releases))

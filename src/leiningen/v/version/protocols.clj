@@ -34,8 +34,7 @@
 (defprotocol Identifiable
   "An identifier locates the version unambiguously in the SCM system.  Identity never conveys to a derived version"
   (identifier [this] "Get the identifier of this version")
-  (identify [this id] "Set the identifier to the given string")
-  (clear-identifier [this] "Remove the identifier from the version"))
+  (identify [this id] "Set the identifier to the given string"))
 
 (defprotocol Dirtyable
   "Dirty is the state wherein the version is polluted by uncommited/unversioned source"

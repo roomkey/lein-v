@@ -83,8 +83,7 @@
   (identifier [this] id)
   (identify [this id]
     (assert (re-matches #"[0-9a-f]+" id) "Identifier can only be hex strings")
-    (MavenVersion. subversions qualifier build id))
-  (clear-identifier [this] (MavenVersion. subversions qualifier build nil)))
+    (MavenVersion. subversions qualifier build id)))
 
 (def default
   (MavenVersion. [0 0 0] nil 0 ""))
