@@ -43,7 +43,7 @@
 
 (deftype MavenVersion [subversions qualifier build id]
   Object
-  (toString [this] (let [unique (not (snapshot? this))]
+  (toString [this] (let [unique (and build (pos? build) (not (snapshot? this)))]
                      (cond-> (string/join "." subversions)
                              qualifier (str ,, "-" (qualifier->string qualifier))
                              (and unique build) (str ,, "-" build)
@@ -58,13 +58,13 @@
     (let [subversions (map-indexed (fn [i el] (cond (< i level) el
                                                            (= i level) (inc el)
                                                            (> i level) 0)) subversions)]
-      (MavenVersion. subversions nil nil nil)))
+      (MavenVersion. subversions nil 0 id)))
   Qualifiable
   ;; TODO: let qualifiers be a vector of qualifier and allow caller to specify index.  Similar, thus, to levels.
-  (qualify [this qstring] (MavenVersion. subversions [qstring nil] nil nil))
+  (qualify [this qstring] (MavenVersion. subversions [qstring nil] 0 id))
   (qualifier [this] (apply str qualifier))
   (qualified? [this] qualifier)
-  (release [this] (MavenVersion. subversions nil nil nil))
+  (release [this] (MavenVersion. subversions nil 0 id))
   Snapshotable
   (snapshot [this] (.qualify this "SNAPSHOT"))
   (snapshot? [this] (= (.qualifier this) "SNAPSHOT"))
@@ -72,11 +72,11 @@
   (qualifier++ [this]
     (assert qualifier "Can't increment non-existent qualifier")
     (let [qualifier (update-in qualifier [1] (fnil inc 1))] ; use implicit 1-based numbering
-      (MavenVersion. subversions qualifier nil nil)))
+      (MavenVersion. subversions qualifier 0 id)))
   IndexableByDistance
   (move [_ distance]
     (when build (assert (<= build distance) "Can't move backwards from current version"))
-    (MavenVersion. subversions qualifier distance nil))
+    (MavenVersion. subversions qualifier distance id))
   (base [_] (MavenVersion. subversions qualifier nil nil))
   (distance [_] build)
   Identifiable ;; Hex strings only
@@ -86,7 +86,7 @@
     (MavenVersion. subversions qualifier build id)))
 
 (def default
-  (MavenVersion. [0 0 0] nil 0 ""))
+  (MavenVersion. [0 0 0] nil 0 nil))
 
 (defn parse [vstring]
   (let [[subversions & qualifiers] (map #(string/split % #"\.") (string/split vstring #"-"))
@@ -97,4 +97,4 @@
                                            #"\w+" (assoc memo :qualifier (string->qualifier s))))
                            {} qualifiers)
         {:keys [distance sha qualifier]} qualifiers]
-    (MavenVersion. subversions qualifier distance sha)))
+    (MavenVersion. subversions qualifier (or distance 0) sha)))

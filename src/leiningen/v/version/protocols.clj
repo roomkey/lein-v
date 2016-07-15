@@ -1,28 +1,28 @@
 (ns leiningen.v.version.protocols
-  "Parse version numbers into malleable components")
+  "Handle abstract versions as a set of malleable components")
 
 (defprotocol ComparableAsVersion
   (<=> [this other] "Compare this version to the other version"))
 
 (defprotocol IncrementableVersion
-  (version++ [this] "Increment to the next version"))
+  (version++ [this] "Declare a new version by incrementing the base"))
 
 (defprotocol IncrementableByLevel
-  (levels [this] "Return incrementable levels and their ranges")
-  (level++ [this level] "Increment the given level"))
+  (levels [this] "Return the number of available levels")
+  (level++ [this level] "Declare a new version by incrementing the given level of the base"))
 
 (defprotocol Qualifiable
-  (qualify [this qualifier] "Qualify the version with the given qualifier string")
+  (qualify [this qualifier] "Declare a new version by qualifying the base with the given qualifier string")
   (qualifier [this] "Return the qualifier, if any")
   (qualified? [this] "Is this version qualified?")
-  (release [this] "Remove qualifier"))
+  (release [this] "Declare a new version by removing the qualifier of the base"))
 
 (defprotocol IncrementableByQualifier
-  (qualifier++ [this] "Increment the qualifier"))
+  (qualifier++ [this] "Declare a new version by incrementing the qualifier of the base"))
 
 (defprotocol Snapshotable
   "A snapshot is a qualifier that identifies a series of development (pre-)releases with the same parent version elements and each of which replaces its predecessor"
-  (snapshot [this] "Create a snapshot based on this version")
+  (snapshot [this] "Declare a new version by qualifying the base as a snapshot")
   (snapshot? [this]))
 
 (defprotocol IndexableByDistance
@@ -32,7 +32,7 @@
   (distance [this] "Return the distance from the base version"))
 
 (defprotocol Identifiable
-  "An identifier locates the version unambiguously in the SCM system.  Identity never conveys to a derived version"
+  "An identifier locates the version unambiguously in the SCM system.  Identity survives declared version updates"
   (identifier [this] "Get the identifier of this version")
   (identify [this id] "Set the identifier to the given string"))
 

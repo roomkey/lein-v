@@ -28,10 +28,6 @@
   (git-command (format "describe --long --match '%s*.*' --abbrev=%d --dirty=-%s --always"
                        *prefix* *min-sha-length* *dirty-mark*)))
 
-(defn sha
-  []
-  (first (git-command (format "rev-parse --short=%d HEAD" *min-sha-length*))))
-
 (let [prefix "v"]
   (defn tag [v]
     (git-command (string/join " " ["tag --sign --annotate --message" (format "\"Release %s\"" v)

@@ -42,6 +42,13 @@
     (provided
       (#'git/git-command (as-checker (partial re-find #"describe.*"))) => (list "v1.2.3-0-g56789")))
 
+(fact "version-from-scm middleware works"
+  (binding [leiningen.release/*level* :major-snapshot]
+    (version-from-scm {})) => (contains {:version "1.2.3"
+                                         :manifest (contains {"Implementation-Version" "1.2.3"})})
+    (provided
+      (#'git/git-command (as-checker (partial re-find #"describe.*"))) => (list "v1.2.3-0-g56789")))
+
 (fact "add-workspace-data middleware works"
   (let [describe0 "v1.2.3-4-g5678"
         status0 "## master"

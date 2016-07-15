@@ -18,10 +18,14 @@
   (*parser* vstring))
 
 (defn update
-  "Return an updated (newer) version based on the supplied operation"
+  "Declare an updated (newer or same in the case of snapshot) version based on the supplied operation"
   [version op & args]
   {:pre [(satisfies? leiningen.v.version.protocols/IncrementableByLevel version) (keyword? op)]
-   :post [(satisfies? leiningen.v.version.protocols/IncrementableByLevel %) ((complement pos?) (compare version %))]}
+   :post [(satisfies? leiningen.v.version.protocols/IncrementableByLevel %)
+          (or (snapshot? %) (zero? (distance %))) ; Updated versions should have a zero distance
+          (or (snapshot? %) (= (identifier version) (identifier %))) ; Updated versions should retain their identity
+          (or (not (satisfies? Dirtyable %)) (= (dirty? version) (dirty? %))) ; Updated versions should retain their dirty flag
+          ((complement pos?) (compare version %))]}
   (cond
     (#{:major :minor :patch} op) (let [q (when (seq args) (string/lower-case (first args)))]
                                    (assert (not (qualified? version))

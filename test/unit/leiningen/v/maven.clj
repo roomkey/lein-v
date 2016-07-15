@@ -34,11 +34,6 @@
   (qualifier++ (parse "1.2.3-alpha2")) => (as-string "1.2.3-alpha3")
   (qualifier++ (parse "1.2.3")) => (throws java.lang.AssertionError))
 
-(fact "Can manage identity"
-  (identify (parse "1.2.3") "abcd") => (as-string "1.2.3-0xabcd")
-  (identifier (parse "1.2.3")) => nil?
-  (identifier (parse "1.2.3-0xab12")) => "ab12")
-
 (fact "Can index by distance"
   (move (parse "1.2.3") 4) => (as-string "1.2.3-4")
   (move (parse "1.2.3-2") 4) => (as-string "1.2.3-4")
@@ -46,6 +41,11 @@
   (move (parse "1.2.3-q") 4) => (as-string "1.2.3-q-4")
   (distance (parse "1.2.3-5")) => 5
   (base (parse "1.2.3-5")) => (as-string "1.2.3"))
+
+(fact "Can manage identity"
+  (identify (move (parse "1.2.3") 1) "abcd") => (as-string "1.2.3-1-0xabcd")
+  (identifier (parse "1.2.3")) => nil?
+  (identifier (parse "1.2.3-2-0xab12")) => "ab12")
 
 (facts "Compares"
   (fact "case insensitive"

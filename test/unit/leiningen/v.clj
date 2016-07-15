@@ -2,50 +2,44 @@
   (:refer-clojure :exclude [update])
   (:require [leiningen.v :refer :all]
             [leiningen.v.git :as git]
+            [leiningen.v.impl]
             [leiningen.deploy]
             [clojure.test :refer :all]
             [midje.sweet :refer :all]
             [midje.checking.core :refer [extended-=]]))
+
+(def $project {:version :lein-v :v {:parser leiningen.v.impl/parse :default leiningen.v.impl/default}})
 
 (defchecker as-string
   [expected]
   (checker [actual]
            (extended-= (str actual) expected)))
 
-(fact "git version is injected if available"
-  (version-from-scm {}) => (contains {:version "1.2.3-3-0xabcd"})
-  (provided (git/version) => ["1.2.3" 3 "abcd" false])
-  (version-from-scm {}) => (contains {:version "1.2.3"})
-  (provided (git/version) => ["1.2.3" 0 "abcd" false])
-  (version-from-scm {}) => (contains {:version "1.2.3-SNAPSHOT"})
-  (provided (git/version) => ["1.2.3-SNAPSHOT" 4 "8888" false]))
+(fact "git version components are injected if available"
+  (version-from-scm $project) => (contains {:version "[[1 2 3] nil nil 3 \"abcd\" true]"})
+  (provided (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" true]))
 
-(fact "default version is returned if git version is not available"
-  (version-from-scm {:version :lein-v}) => (contains {:version "0.0.0-0-0xabcd"})
-  (provided (git/version) => nil
-            (git/sha) => "abcd"))
-
-(fact "dirty version marker is returned if repo is dirty"
-  (version-from-scm {:version :lein-v}) => (contains {:version "DIRTY"})
-  (provided (git/version) => ["1.2.3" 4 "8888" true]))
+(fact "default version is used if git base version is not available"
+  (version-from-scm $project) => (contains {:version "[[0 0 0] nil nil 4 \"abcd\"]"})
+  (provided (git/version) => [nil 4 "abcd" false]))
 
 (fact "tag is created with updated version"
-  (update {} :minor) => (as-string "1.3.0")
+  (update $project :minor) => (as-string "[[1 3 0] nil nil]")
   (provided
-    (git/version) => ["1.2.3" 3 "abcd" false]
-    (git/tag "1.3.0") => ..tagResult..))
+    (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" false]
+    (git/tag "[[1 3 0] nil nil]") => ..tagResult..))
 
 (fact "tag is not created when version does not change"
-  (update {} :snapshot) => (as-string "1.2.3-SNAPSHOT")
+  (update $project :snapshot) => (as-string "[[1 2 3] \"SNAPSHOT\" 0 3 \"abcd\"]")
   (provided
-    (git/version) => ["1.2.3-SNAPSHOT" 3 "abcd" false]
+    (git/version) => ["[[1 2 3] \"SNAPSHOT\" 0]" 3 "abcd" false]
     (git/tag anything) => ..tagResult.. :times 0))
 
 (fact "compound operation is correctly parsed"
-  (update {} :minor-alpha) => (as-string "1.3.0-alpha")
+  (update $project :minor-alpha) => (as-string "[[1 3 0] \"alpha\" 0]")
   (provided
-    (git/version) => ["1.2.3" 3 "abcd" false]
-    (git/tag "1.3.0-alpha") => ..tagResult..))
+    (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" false]
+    (git/tag "[[1 3 0] \"alpha\" 0]") => ..tagResult..))
 
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
