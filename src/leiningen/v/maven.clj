@@ -70,9 +70,6 @@
                       (MavenVersion. subversions nil 0 sha dirty?))
       (throw (Exception. (str "Not a supported release operation: " level))))))
 
-(def default
-  (MavenVersion. [0 0 0] nil nil 0 nil))
-
 (defn- parse-tag [vstring]
   (let [[sstr qstr & _] (string/split vstring #"-")
         subversions (into [] (map #(Integer/parseInt %)) (string/split sstr #"\."))
@@ -80,8 +77,9 @@
     [subversions qualifier]))
 
 (defn from-scm
-  [tag distance sha dirty?]
-  (if tag
-    (let [[subversions qualifier] (parse-tag tag)]
-      (MavenVersion. subversions qualifier distance sha dirty?))
-    (MavenVersion. [0 0 0] nil distance sha dirty?)))
+  ([] (MavenVersion. [0 0 0] nil nil 0 nil))
+  ([tag distance sha dirty?]
+   (if tag
+     (let [[subversions qualifier] (parse-tag tag)]
+       (MavenVersion. subversions qualifier distance sha dirty?))
+     (MavenVersion. [0 0 0] nil distance sha dirty?))))

@@ -13,12 +13,10 @@
 
 (defn- version
   "Determine the version for the project by dynamically interrogating the environment"
-  [{from-scm :from-scm default :default
-    :or {default default-impl/default
-         from-scm default-impl/from-scm}}]
-  (if-let [scm (git/version)]
-    (apply from-scm scm)
-    default))
+  [{from-scm :from-scm :or {from-scm default-impl/from-scm}}]
+  (let [scm (git/version)]
+    (when-not scm (leiningen.core.main/warn "No SCM data available!"))
+    (apply from-scm scm)))
 
 (defn- workspace-state
   [project]

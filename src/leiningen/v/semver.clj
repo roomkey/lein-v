@@ -38,18 +38,16 @@
       #{:patch} (throw (Exception. "Patch releases are implicit by commit distance"))
       (throw (Exception. (str "Not a supported release operation: " level))))))
 
-(def default
-  (SemVer. [0 1] 0 nil nil))
-
 (let [re #"(\d+)\.(\d+)\.(\d+)"]
   (defn- parse-base [base]
     (let [[_ major minor patch] (re-matches re base)]
-;      (assert (= "0" patch) "Non-zero patch level found in SCM base")
+      (assert (= "0" patch) "Non-zero patch level found in SCM base")
       (mapv #(Integer/parseInt %) [major minor]))))
 
 (defn from-scm
-  [base distance sha dirty?]
-  (if base
-    (let [subversions (parse-base base)]
-      (SemVer. subversions distance sha dirty?))
-    (SemVer. [0 1] distance sha dirty?)))
+  ([] (SemVer. [0 1] 0 nil nil))
+  ([base distance sha dirty?]
+   (if base
+     (let [subversions (parse-base base)]
+       (SemVer. subversions distance sha dirty?))
+     (SemVer. [0 1] distance sha dirty?))))

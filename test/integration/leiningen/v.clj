@@ -29,8 +29,7 @@
                   (shell/with-sh-dir (str tmpdir)
                     ?form))))
 
-(def $mproject {:version :lein-v :v {:from-scm leiningen.v.maven/from-scm
-                                     :default leiningen.v.maven/default}})
+(def $mproject {:version :lein-v :v {:from-scm leiningen.v.maven/from-scm}})
 
 (fact "cache task works"
   (v {:version "1.2.3" :source-paths ["/X"]} "cache") => anything

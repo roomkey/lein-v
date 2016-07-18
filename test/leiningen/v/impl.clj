@@ -39,12 +39,10 @@
                       (SimpleVersion. subversions nil 0 sha dirty?))
       (throw (Exception. (str "Not a supported release operation: " level))))))
 
-(def default
-  (SimpleVersion. [0 0 0] nil nil nil nil))
-
 (defn from-scm
-  [tag distance sha dirty?]
-  (if tag
-    (let [[subversions qualifier] (read-string tag)]
-      (SimpleVersion. subversions qualifier distance sha dirty?))
-    (SimpleVersion. [0 0 0] nil distance sha dirty?)))
+  ([] (SimpleVersion. [0 0 0] nil nil nil nil))
+  ([tag distance sha dirty?]
+   (if tag
+     (let [[subversions qualifier] (read-string tag)]
+       (SimpleVersion. subversions qualifier distance sha dirty?))
+     (SimpleVersion. [0 0 0] nil distance sha dirty?))))
