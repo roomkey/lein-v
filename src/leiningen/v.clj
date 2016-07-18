@@ -47,6 +47,7 @@
 
 (defn update
   "Returns SCM version updated per the supplied operation"
+  ;; TODO: Prevent double tagging a commit
   [{config :v :as project} & [op]]
   (let [v (version config)
         op (or op leiningen.release/*level*)
