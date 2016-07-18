@@ -32,29 +32,32 @@
     (file/cache path version describe)))
 
 (defn- update*
-  "Declare an updated (newer or same in the case of snapshot) version based on the supplied operation"
-  [version op]
-  {:pre [(satisfies? leiningen.v.version.protocols/Releasable version) (keyword? op)
-         (not (dirty? version))]
+  "Returns SCM version updated (newer or same in the case of snapshot) per the supplied operation"
+  [version ops]
+  {:pre [(every? keyword? ops)
+         (satisfies? leiningen.v.version.protocols/Releasable version)
+         (not (dirty? version))
+         (pos? (distance version))]
    :post [(= (dirty? version) (dirty? %)) ; Updated versions should retain their dirty flag
-          (or (= version %) (zero? (distance %))) ; Updated versions should have a zero distance
           (= (sha version) (sha %)) ; Updated versions should retain their identity
+          (or (= version %) (zero? (distance %))) ; Updated versions should have a zero distance
+          ((complement pos?) (compare version %))
           (satisfies? leiningen.v.version.protocols/SCMHosted %)]}
-  (debug "*BEFORE: " version)
-  (let [v (release version op)]
-    (debug "* AFTER:" v)
-    v))
+  (loop [[op & ops] ops v version]
+    (if op
+      (let [v' (release v op)]
+        (debug (format "%s -[%s]-> %s" v op v'))
+        (recur ops v'))
+      v)))
+
 
 (defn update
-  "Returns SCM version updated per the supplied operation"
-  ;; TODO: Prevent double tagging a commit
+  "Declare and tag an updated version based on the supplied operations"
   [{config :v :as project} & [op]]
   (let [v (version config)
         op (or op leiningen.release/*level*)
         ops (map keyword (string/split (name op) #"-"))
-        v' (loop [[op & ops] ops v v]
-             (if op (recur ops (update* v op)) v))]
-    (assert ((complement pos?) (compare v v')) (format "Operation %s did not advance the version" op))
+        v' (update* v ops)]
     (when (not= v v') (git/tag (tag v')))
     v'))
 

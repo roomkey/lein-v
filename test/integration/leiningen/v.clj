@@ -18,23 +18,17 @@
   []
   (assert (-> (shell/sh "/bin/bash" "-c" "git init") :exit zero?)))
 
-(defn commit0!
+(defn commit!
   []
-  (assert (-> (shell/sh "/bin/bash" "-c" "git commit -m \"Commit 0\" --allow-empty") :exit zero?)))
-
-(defn commit1!
-  []
-  (assert (-> (shell/sh "/bin/bash" "-c" "git commit -m \"Commit 1\" --allow-empty") :exit zero?)))
+  (assert (-> (shell/sh "/bin/bash" "-c" "git commit -m \"Commit\" --allow-empty") :exit zero?)))
 
 (defn tag!
   [t]
-  (let [result (shell/sh "/bin/bash" "-c" (format "git tag -a --message \"Release %s\" %s" t t))]
-    (assert (-> result :exit zero?) (format "Uh Oh\n: %s" result))))
+  (assert (-> (shell/sh "/bin/bash" "-c" (format "git tag -a -m \"R %s\" %s" t t)) :exit zero?)))
 
 (defn dirty!
   []
-  (let [result (shell/sh "/bin/bash" "-c" "echo \"Hello\" >> x && git add x")]
-    (assert (-> result :exit zero?) (format "Uh Oh\n: %s" result))))
+  (assert (-> (shell/sh "/bin/bash" "-c" "echo \"Hello\" >> x && git add x") :exit zero?)))
 
 (background
  (around :facts (let [tmpdir (Files/createTempDirectory
@@ -46,11 +40,6 @@
 
 (def $mproject {:version :lein-v :v {:from-scm leiningen.v.maven/from-scm
                                      :default leiningen.v.maven/default}})
-
-(defchecker as-string
-  [expected]
-  (checker [actual]
-           (extended-= (str actual) expected)))
 
 (fact "cache task works"
   (v {:version "1.2.3" :source-paths ["/X"]} "cache") => anything
@@ -64,28 +53,34 @@
                :manifest (contains {"Implementation-Version" "0.0.0"})}))
 
 (fact "Baseless commit returns default + commit metadata"
-  (against-background (before :facts (do (init!) (commit0!))))
+  (against-background (before :facts (do (init!) (commit!))))
   (version-from-scm $mproject)
   => (contains {:version #"0.0.0-1-0x[0-9a-z]{4}"
                :manifest (contains {"Implementation-Version" #"0.0.0-1-0x[0-9a-z]{4}"})}))
 
 (fact "Commit with positive commit distance yields complete version"
-  (against-background (before :facts (do (init!) (commit0!) (tag! "v2.3.4-alpha4") (commit1!))))
+  (against-background (before :facts (do (init!) (commit!) (tag! "v2.3.4-alpha4") (commit!))))
   (version-from-scm $mproject)
   => (contains {:version #"2.3.4-alpha4-1-0x[0-9a-f]{4,}"
                :manifest (contains {"Implementation-Version" #"2.3.4-alpha4-1-0x[0-9a-f]{4,}"})}))
 
 (fact "Dirty repo is marked in version"
-  (against-background (before :facts (do (init!) (commit0!) (tag! "v2.3.4-alpha4") (commit1!) (dirty!))))
+  (against-background (before :facts (do (init!) (commit!) (tag! "v2.3.4-alpha4") (commit!) (dirty!))))
   (version-from-scm $mproject)
   => (contains {:version #"2.3.4-alpha4-1-0x[0-9a-f]{4,}-DIRTY"
                :manifest (contains {"Implementation-Version" #"2.3.4-alpha4-1-0x[0-9a-f]{4,}-DIRTY"})}))
 
 (fact "update task works"
-  (against-background (before :facts (do (init!) (commit0!) (tag! "v1.2.3") (commit1!))))
+  (against-background (before :facts (do (init!) (commit!) (tag! "v1.2.3") (commit!))))
   (binding [leiningen.release/*level* :major-snapshot]
     (v $mproject "update")) => anything
   (version-from-scm $mproject) => (contains {:version "2.0.0-SNAPSHOT"}))
+
+(fact "update task fails on existing commit"
+  (against-background (before :facts (do (init!) (commit!) (tag! "v1.2.3"))))
+  (binding [leiningen.release/*level* :major-snapshot]
+    (v $mproject "update")) => (throws java.lang.AssertionError)
+  (version-from-scm $mproject) => (contains {:version "1.2.3"}))
 
 (fact "assert-anchored task works"
   (v {:workspace {:status {:tracking "" :files ()}}} "assert-anchored") => anything
