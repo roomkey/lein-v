@@ -50,7 +50,6 @@
         (recur ops v'))
       v)))
 
-
 (defn update
   "Declare and tag an updated version based on the supplied operations"
   [{config :v :as project} & [op]]
