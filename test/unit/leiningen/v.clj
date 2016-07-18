@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [update])
   (:require [leiningen.v :refer :all]
             [leiningen.v.git :as git]
-            [leiningen.v.impl]
+            [leiningen.v.impl :refer [->SimpleVersion]]
             [leiningen.deploy]
             [clojure.test :refer :all]
             [midje.sweet :refer :all]
@@ -23,28 +23,28 @@
   (version-from-scm $project) => (contains {:version "[[0 0 0] nil 4 \"abcd\"]"})
   (provided (git/version) => [nil 4 "abcd" false]))
 
-(fact "tag is created with updated version"
-  (update $project :minor) => (as-string "[[1 3 0] nil]")
+(fact "update task creates tag with updated version"
+  (let [$project (assoc-in $project [:v :version] (->SimpleVersion [1 2 3] nil 3 "abcd" false))]
+    (update $project :minor)) => (as-string "[[1 3 0] nil]")
   (provided
-    (git/version) => ["[[1 2 3] nil]" 3 "abcd" false]
     (git/tag "[[1 3 0] nil]") => ..tagResult..))
 
-(fact "Simple qualifier on released version is not allowed"
-  (update $project :snapshot) => (throws java.lang.AssertionError)
+(fact "update task does not allow a simple qualifier on released version"
+  (let [$project (assoc-in $project [:v :version] (->SimpleVersion [1 2 3] nil 3 "abcd" false))]
+    (update $project :snapshot)) => (throws java.lang.AssertionError)
   (provided
-   (git/version) => ["[[1 2 3] nil]" 3 "abcd" false]
-   (git/tag anything) => ..tagResult.. :times 0))
+    (git/tag anything) => ..tagResult.. :times 0))
 
 (fact "git tag is not created when tag result does not change"
-  (update $project :snapshot) => (as-string "[[1 2 3] [\"SNAPSHOT\" 0] 3 \"abcd\"]")
+  (let [$project (assoc-in $project [:v :version] (->SimpleVersion [1 2 3] ["SNAPSHOT" 0] 3 "abcd" false))]
+    (update $project :snapshot)) => (as-string "[[1 2 3] [\"SNAPSHOT\" 0] 3 \"abcd\"]")
   (provided
-    (git/version) => ["[[1 2 3] [\"SNAPSHOT\" 0]]" 3 "abcd" false]
     (git/tag anything) => ..tagResult.. :times 0))
 
 (fact "compound operation is correctly parsed"
-  (update $project :minor-alpha) => (as-string "[[1 3 0] [\"alpha\" 0]]")
+  (let [$project (assoc-in $project [:v :version] (->SimpleVersion [1 2 3] nil 3 "abcd" false))]
+    (update $project :minor-alpha)) => (as-string "[[1 3 0] [\"alpha\" 0]]")
   (provided
-    (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" false]
     (git/tag "[[1 3 0] [\"alpha\" 0]]") => ..tagResult..))
 
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
