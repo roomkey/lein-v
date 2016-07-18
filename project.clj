@@ -9,7 +9,8 @@
   :hooks [leiningen.v/deploy-when-anchored]
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
-  :dependencies [[org.clojure/clojure "1.8.0"]]
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.apache.maven/maven-artifact "3.3.9"]]
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
                    :eastwood {:config-files []
                               :exclude-linters []

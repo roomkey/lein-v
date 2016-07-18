@@ -1,26 +1,24 @@
 (ns leiningen.v
-  "Enrich project with SCM workspace status"
+  "Enrich project with SCM workspace status and introduce a new release model"
   (:refer-clojure :exclude [update])
   (:require [clojure.string :as string]
             [leiningen.v.git :as git]
             [leiningen.v.file :as file]
-            [leiningen.v.version :as version]
             [leiningen.v.version.protocols :refer :all]
-            [leiningen.v.maven]
+            [leiningen.v.maven :as default-impl]
             [leiningen.deploy]
+            [leiningen.core.main :refer [info warn debug]]
             [leiningen.release]
             [robert.hooke]))
 
 (defn- version
   "Determine the version for the project by dynamically interrogating the environment"
-  [{parser :parser default :default :or {default leiningen.v.maven/default parser leiningen.v.maven/parse}}]
-  (let [[base distance sha dirty?] (git/version)]
-    (binding [leiningen.v.version/*parser* parser]
-      (let [v (or (and base (version/parse base)) default)]
-        (cond-> v
-          (and (satisfies? IndexableByDistance v) distance) (move distance)
-          (and (satisfies? Identifiable v) sha) (identify sha)
-          (and (satisfies? Dirtyable v) dirty?) (dirty))))))
+  [{from-scm :from-scm default :default
+    :or {default default-impl/default
+         from-scm default-impl/from-scm}}]
+  (if-let [scm (git/version)]
+    (apply from-scm scm)
+    default))
 
 (defn- workspace-state
   [project]
@@ -33,15 +31,31 @@
         path (str (or dir (first source-paths)) "/version.clj")]
     (file/cache path version describe)))
 
+(defn- update*
+  "Declare an updated (newer or same in the case of snapshot) version based on the supplied operation"
+  [version op]
+  {:pre [(satisfies? leiningen.v.version.protocols/Releasable version) (keyword? op)
+         (not (dirty? version))]
+   :post [(= (dirty? version) (dirty? %)) ; Updated versions should retain their dirty flag
+          (or (= version %) (zero? (distance %))) ; Updated versions should have a zero distance
+          (= (sha version) (sha %)) ; Updated versions should retain their identity
+          (satisfies? leiningen.v.version.protocols/SCMHosted %)]}
+  (debug "*BEFORE: " version)
+  (let [v (release version op)]
+    (debug "* AFTER:" v)
+    v))
+
 (defn update
   "Returns SCM version updated per the supplied operation"
   [{config :v :as project} & [op]]
   (let [v (version config)
         op (or op leiningen.release/*level*)
-        args (string/split (name op) #"-")
-        v-new (apply leiningen.v.version/update v (keyword (first args)) (rest args))]
-    (when (not= v v-new) (git/tag (str v-new)))
-    v-new))
+        ops (map keyword (string/split (name op) #"-"))
+        v' (loop [[op & ops] ops v v]
+             (if op (recur ops (update* v op)) v))]
+    (assert ((complement pos?) (compare v v')) (format "Operation %s did not advance the version" op))
+    (when (not= v v') (git/tag (tag v')))
+    v'))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]
   ;; NB this will return true for projects without a :workspace key

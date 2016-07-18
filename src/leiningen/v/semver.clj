@@ -1,66 +1,55 @@
-;;; This implementation of lein-v versioning protocols supports incrementable versions for
-;;; major, minor & patch as well as incrementable arbitrary qualifiers.  It also supports
-;;; arbitrary string metadata.  It does not support SNAPSHOT qualifiers due to semver's insistence
-;;; (section 3) on never releasing different artifacts with the same version.  There is also no
-;;; support for build distance versions.  Such support would have required appropriating the patch
-;;; element to represent distance (which may be a reasonable alternate implementation).
+;;; A lein-v implementation of Semantic Version 2.0.0.
+;;; It supports major and minor releases and implicit patch releases based on the commit
+;;; distance from the last major/minor version-tagged commit.  SCM tags are, however, of the
+;;; form "major.minor.0" to be more aesthetically pleasing and consistent with the standard.
+;;; SHA metadata is added for positive commit distances, and a "DIRTY" metadatum is added when
+;;; approprite.  There is no support for Semantic Version's pre-releases!  The ordering/
+;;; precedence rules cannot be reconciled with the automatic assignment of patch releases.
 ;;; http://semver.org/spec/v2.0.0.html
-;;; Example Versions & Interpretations:
-;;; 1.2.3-rc.4+Xabcd => major 1, minor 2, patch 3, qualifier rc incremented to 4 & metadata Xabcd
-
 (ns leiningen.v.semver
   "An implementation of lein-v version protocols that complies with Semantic Versioning 2.0.0"
   (:require [clojure.string :as string]
             [leiningen.v.version.protocols :refer :all]))
 
-(defn- integerify
-  "Parse the given string into a number, if possible"
-  [s]
-  (try (Integer/parseInt s)
-       (catch java.lang.NumberFormatException _ s)))
-
-(defn- string->extension
-  [estring]
-  (map integerify (string/split estring #"\.")))
-
-(defn- extension->string
-  [extension]
-  (string/join "." extension))
-
-(deftype SemanticVersion [subversions pre-releases metadatas]
+(deftype SemVer [subversions distance sha dirty?]
   Object
-  (toString [this] (cond-> (string/join "." subversions)
-                     (seq pre-releases) (str ,, "-" (extension->string pre-releases))
-                     (seq metadatas) (str ,, "+" (extension->string metadatas))))
-  IncrementableByLevel
-  (levels [this] 3)
-  (level++ [this level]
-    (assert (<= 0 level (dec (.levels this))) "Not a valid level to increment")
-    (let [subversions (map-indexed (fn [i el] (cond (< i level) el
-                                                           (= i level) (inc el)
-                                                           (> i level) 0)) subversions)]
-      (SemanticVersion. subversions nil nil)))
-  Identifiable
-  (identifier [this] (when (seq metadatas) (extension->string metadatas)))
-  (identify [this mstring] (SemanticVersion. subversions pre-releases (string->extension mstring)))
-  Qualifiable ; semver's pre-release field is an adequate conceptual approximation
-  (qualify [this qstring] (SemanticVersion. subversions (string->extension qstring) metadatas))
-  (qualifier [this] (extension->string pre-releases))
-  (qualified? [this] (seq pre-releases))
-  (release [this] (SemanticVersion. subversions nil nil))
-  IncrementableByQualifier
-  (qualifier++ [this]
-    (assert (seq pre-releases) "Can't increment non-existent qualifier")
-    (let [pre-releases (update-in (vec pre-releases) [1] (fnil inc 1))] ; use implicit 1-based numbering
-      (SemanticVersion. subversions pre-releases nil))))
+  (toString [this] (let [be (string/join "." (conj subversions distance))
+                         metadata (string/join "." (cond-> []
+                                                     (and distance (pos? distance)) (conj (str "0x" sha))
+                                                     dirty? (conj "DIRTY")))]
+                     (cond-> be
+                       (not (string/blank? metadata)) (str "+" metadata))))
+  Comparable
+  (compareTo [this that] (compare [(vec (.subversions this)) (.distance this) (.dirty? this)]
+                                  [(vec (.subversions that)) (.distance that) (.dirty? that)]))
+  SCMHosted
+  (tag [this] (string/join "." (conj subversions distance)))
+  (distance [this] distance)
+  (sha [this] sha)
+  (dirty? [this] dirty?)
+  Releasable
+  (release [this level]
+    (condp contains? level
+      #{:major :minor} (let [l ({:major 0 :minor 1} level)
+                             subversions (map-indexed (fn [i el] (cond (< i l) el
+                                                                      (= i l) (inc el)
+                                                                      (> i l) 0)) subversions)]
+                         (SemVer. (vec subversions) 0 sha dirty?))
+      #{:patch} (throw (Exception. "Patch releases are implicit by commit distance"))
+      (throw (Exception. (str "Not a supported release operation: " level))))))
 
 (def default
-  (SemanticVersion. [0 1 0] [] nil))
+  (SemVer. [0 1] 0 nil nil))
 
-(defn parse [vstring]
-  (let [re #"(\d+)\.(\d+)\.(\d+)((?:-)([\w\.\-]+))?((?:\+)([\w\.\-]+))?"
-        [_ major minor patch _ pre-release _ metadata] (re-matches re vstring)
-        [major minor patch] (map #(Integer/parseInt %) [major minor patch])
-        pre-releases (when pre-release (string->extension pre-release))
-        metadatas (when metadata (string->extension metadata))]
-    (SemanticVersion. [major minor patch] pre-releases metadatas)))
+(let [re #"(\d+)\.(\d+)\.(\d+)"]
+  (defn- parse-base [base]
+    (let [[_ major minor patch] (re-matches re base)]
+;      (assert (= "0" patch) "Non-zero patch level found in SCM base")
+      (mapv #(Integer/parseInt %) [major minor]))))
+
+(defn from-scm
+  [base distance sha dirty?]
+  (if base
+    (let [subversions (parse-base base)]
+      (SemVer. subversions distance sha dirty?))
+    (SemVer. [0 1] distance sha dirty?)))

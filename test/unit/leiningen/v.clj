@@ -8,7 +8,8 @@
             [midje.sweet :refer :all]
             [midje.checking.core :refer [extended-=]]))
 
-(def $project {:version :lein-v :v {:parser leiningen.v.impl/parse :default leiningen.v.impl/default}})
+(def $project {:version :lein-v :v {:from-scm leiningen.v.impl/from-scm
+                                    :default leiningen.v.impl/default}})
 
 (defchecker as-string
   [expected]
@@ -16,30 +17,36 @@
            (extended-= (str actual) expected)))
 
 (fact "git version components are injected if available"
-  (version-from-scm $project) => (contains {:version "[[1 2 3] nil nil 3 \"abcd\" true]"})
-  (provided (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" true]))
+  (version-from-scm $project) => (contains {:version "[[1 2 3] nil 3 \"abcd\" true]"})
+  (provided (git/version) => ["[[1 2 3] nil]" 3 "abcd" true]))
 
 (fact "default version is used if git base version is not available"
-  (version-from-scm $project) => (contains {:version "[[0 0 0] nil nil 4 \"abcd\"]"})
+  (version-from-scm $project) => (contains {:version "[[0 0 0] nil 4 \"abcd\"]"})
   (provided (git/version) => [nil 4 "abcd" false]))
 
 (fact "tag is created with updated version"
-  (update $project :minor) => (as-string "[[1 3 0] nil nil]")
+  (update $project :minor) => (as-string "[[1 3 0] nil]")
   (provided
-    (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" false]
-    (git/tag "[[1 3 0] nil nil]") => ..tagResult..))
+    (git/version) => ["[[1 2 3] nil]" 3 "abcd" false]
+    (git/tag "[[1 3 0] nil]") => ..tagResult..))
 
-(fact "tag is not created when version does not change"
-  (update $project :snapshot) => (as-string "[[1 2 3] \"SNAPSHOT\" 0 3 \"abcd\"]")
+(fact "Simple qualifier on released version is not allowed"
+  (update $project :snapshot) => (throws java.lang.AssertionError)
   (provided
-    (git/version) => ["[[1 2 3] \"SNAPSHOT\" 0]" 3 "abcd" false]
+   (git/version) => ["[[1 2 3] nil]" 3 "abcd" false]
+   (git/tag anything) => ..tagResult.. :times 0))
+
+(fact "git tag is not created when tag result does not change"
+  (update $project :snapshot) => (as-string "[[1 2 3] [\"SNAPSHOT\" 0] 3 \"abcd\"]")
+  (provided
+    (git/version) => ["[[1 2 3] [\"SNAPSHOT\" 0]]" 3 "abcd" false]
     (git/tag anything) => ..tagResult.. :times 0))
 
 (fact "compound operation is correctly parsed"
-  (update $project :minor-alpha) => (as-string "[[1 3 0] \"alpha\" 0]")
+  (update $project :minor-alpha) => (as-string "[[1 3 0] [\"alpha\" 0]]")
   (provided
     (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" false]
-    (git/tag "[[1 3 0] \"alpha\" 0]") => ..tagResult..))
+    (git/tag "[[1 3 0] [\"alpha\" 0]]") => ..tagResult..))
 
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
