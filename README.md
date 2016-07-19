@@ -2,6 +2,15 @@
 
 Drive leiningen project version from git instead of the other way around.
 
+## Motivation ##
+The lein-v plugin was driven by several beliefs:
+1. Versioning should be painless in the simplest cases
+2. Unique (and reproducible/commited) source should produce unique versions
+3. Versioning information should live in the SCM repo -the source of source truth
+4. Version information is metadata and should not be stored within with the data it describes
+
+Lein-v uses git metadata to build a unique, reproducible and semantically meaningful version for every commit.  Along the way, it adds useful metadata to your project and artifacts (jar and war files) to tie them back to a specific commit.  Finally, it helps ensure that you never release an irreproduceable artifact.
+
 ## Task Usage ##
 
 There are two lein sub-tasks within the v namespace intended for direct use:
@@ -76,7 +85,7 @@ Snapshot versions are similar, but the resulting version is never changed.
 
 Finally, lein-v enforces some common-sense rules:
 
-* For commits without a version tag, the base version will be extended with the commit distance from
+* For commits without a version tag, the base version will be extended with a build number using the commit distance from
 HEAD to the most recent version tag (looking towards the root of the tree) and the unique SHA prefix of the commit.
 * You can never go backwards with versions.  This includes qualifiers, which are orderd as follows:
   1. `alpha`
@@ -84,14 +93,13 @@ HEAD to the most recent version tag (looking towards the root of the tree) and t
   3. `rc`
   4. `snapshot`
 * When a git repo is first used with lein-v and has no version tags, the default base version is 0.0.0, and it
-  is reported with a zero distance and the relevant SHA (0.0.0-0-0xabcd).
+  is reported with a distance from the root commit and the relevant SHA (0.0.0-23-0xabcd).
 * When tags are created in the git repo, they are prefixed with the letter 'v'.
 
 It is still possible to do a raw `lein deploy`, in which case the version will be that determined by
 lein-v (most likely something like "1.0.1-2-0xabcd").
 
-Note: you can provide your own implementation of many of these rules.  See the source code for details
-on defining data types adhering to the protocols in leiningein.v.protocols.
+Note: you can provide your own implementation of many of these rules.  See the source code for details on defining data types adhering to the protocols in the `leiningein.v.protocols` namespace.  Currently there are implementations for maven (version 3) and Semantic Versioning (version 2) available.
 
 ### References and Relevant Reading ###
 
@@ -113,6 +121,6 @@ on defining data types adhering to the protocols in leiningein.v.protocols.
 
 ## License ##
 
-Copyright (C) 2015 Room Key
+Copyright (C) 2016 Room Key
 
 Distributed under the Eclipse Public License, the same as Clojure.
