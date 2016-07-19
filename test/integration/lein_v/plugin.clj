@@ -30,7 +30,7 @@
                   (shell/with-sh-dir (str tmpdir)
                     ?form))))
 
-(def $mproject {:version :lein-v :v {:from-scm leiningen.v.maven/from-scm}})
+(def $mproject {:version :lein-v :v {:from-scm 'leiningen.v.maven/from-scm}})
 
 (fact "Raw repo returns default"
   (against-background (before :facts (do (init!))))

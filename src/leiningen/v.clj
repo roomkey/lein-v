@@ -5,7 +5,7 @@
             [leiningen.v.git :as git]
             [leiningen.v.file :as file]
             [leiningen.v.version.protocols :refer :all]
-            [leiningen.v.maven :as default-impl]
+            [leiningen.v [maven] [semver]]
             [leiningen.deploy]
             [leiningen.core.main :refer [info warn debug]]
             [leiningen.release]
@@ -13,10 +13,11 @@
 
 (defn- version
   "Determine the version for the project by dynamically interrogating the environment"
-  [{from-scm :from-scm :or {from-scm default-impl/from-scm}}]
-  (let [scm (git/version)]
+  [{from-scm :from-scm :or {from-scm 'leiningen.v.maven/from-scm}}]
+  (let [f (ns-resolve *ns* from-scm)
+        scm (git/version)]
     (when-not scm (leiningen.core.main/warn "No SCM data available!"))
-    (apply from-scm scm)))
+    (apply f scm)))
 
 (defn- workspace-state
   [project]

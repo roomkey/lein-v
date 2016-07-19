@@ -8,7 +8,7 @@
             [midje.sweet :refer :all]
             [midje.checking.core :refer [extended-=]]))
 
-(def $project {:version :lein-v :v {:from-scm leiningen.v.impl/from-scm}})
+(def $project {:version :lein-v :v {:from-scm 'leiningen.v.impl/from-scm}})
 
 (defchecker as-string
   [expected]

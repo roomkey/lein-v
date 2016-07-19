@@ -33,7 +33,7 @@
                   (shell/with-sh-dir (str tmpdir)
                     ?form))))
 
-(def $mproject {:version :lein-v :source-paths ["/X"] :v {:from-scm leiningen.v.maven/from-scm}})
+(def $mproject {:version :lein-v :source-paths ["/X"] :v {:from-scm 'leiningen.v.maven/from-scm}})
 
 (fact "cache task works"
   (against-background (before :facts (do (clone! "simple.repo") (commit!))))
