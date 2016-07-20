@@ -51,8 +51,9 @@
 
 (defn update
   "Declare and tag an updated version based on the supplied operations"
-  [{{v :version} :v :as project} & [op]]
-  (let [op (or op leiningen.release/*level*)
+  [{config :v :as project} & [op]]
+  (let [v (version config)
+        op (or op leiningen.release/*level*)
         ops (map keyword (string/split (name op) #"-"))
         v' (update* v ops)]
     (when (not= v v') (git/tag (tag v')))
@@ -99,11 +100,10 @@
 ;; Middleware
 (defn version-from-scm
   [project]
-  (let [v (or (version (:v project)) "UNKNOWN")]
+  (let [v (str (or (version (:v project)) "UNKNOWN"))]
     (-> project
-       (assoc-in [:v :version] v)
-       (assoc-in [:version] (str v))
-       (assoc-in [:manifest "Implementation-Version"] (str v)))))
+       (assoc-in [:version] v)
+       (assoc-in [:manifest "Implementation-Version"] v))))
 
 (defn add-workspace-data
   [project]
