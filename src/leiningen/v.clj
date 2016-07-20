@@ -56,7 +56,7 @@
         op (or op leiningen.release/*level*)
         ops (map keyword (string/split (name op) #"-"))
         v' (update* v ops)]
-    (when (not= v v') (git/tag (tag v')))
+    (when (not= v v') (apply git/tag (tag v') (mapcat identity config)))
     v'))
 
 (defn- anchored? [{{{:keys [tracking files]} :status} :workspace :as project}]

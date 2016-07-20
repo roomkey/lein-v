@@ -9,9 +9,16 @@
   `(let [tmpdir# (Files/createTempDirectory
                   (.toPath (io/as-file (io/resource "tmp-git")))
                   "repo"
-                  (into-array java.nio.file.attribute.FileAttribute []))]
+                  (into-array java.nio.file.attribute.FileAttribute []))
+         env# {"GIT_AUTHOR_NAME" "Test User"
+               "GIT_AUTHOR_EMAIL" "user@domain.com"
+               "GIT_AUTHOR_DATE" "2016-11-16T22:22:22"
+               "GIT_COMMITTER_NAME" "Test User"
+               "GIT_COMMITTER_EMAIL" "user@domain.com"
+               "GIT_COMMITTER_DATE" "2016-11-16T22:22:22"}]
      (shell/with-sh-dir (str tmpdir#)
-       ~@body)))
+       (shell/with-sh-env env#
+         ~@body))))
 
 (defn- sh [command] (let [result (shell/sh "/bin/bash" "-c" command)]
                       (assert (->  result :exit zero?) (:err result))))

@@ -15,7 +15,8 @@
 (background
  (around :facts (shell! ?form)))
 
-(def $mproject {:version :lein-v :source-paths ["/X"] :v {:from-scm 'leiningen.v.maven/from-scm}})
+(def $mproject {:version :lein-v :source-paths ["/X"] :v {:from-scm 'leiningen.v.maven/from-scm
+                                                          :sign nil}})
 
 (fact "cache task works"
   (against-background (before :facts (do (clone! "test0.repo") (commit!))))

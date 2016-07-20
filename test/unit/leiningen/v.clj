@@ -27,7 +27,7 @@
   (update $project :minor) => (as-string "[[1 3 0] nil]")
   (provided
     (git/version) => ["[[1 2 3] nil]" 3 "abcd" false]
-    (git/tag "[[1 3 0] nil]") => ..tagResult..))
+    (git/tag "[[1 3 0] nil]" (as-checker keyword?) anything) => ..tagResult..))
 
 (fact "Simple qualifier on released version is not allowed"
   (update $project :snapshot) => (throws java.lang.AssertionError)
@@ -39,13 +39,13 @@
   (update $project :snapshot) => (as-string "[[1 2 3] [\"SNAPSHOT\" 0] 3 \"abcd\"]")
   (provided
     (git/version) => ["[[1 2 3] [\"SNAPSHOT\" 0]]" 3 "abcd" false]
-    (git/tag anything) => ..tagResult.. :times 0))
+    (git/tag anything (as-checker keyword?) anything) => ..tagResult.. :times 0))
 
 (fact "compound operation is correctly parsed"
   (update $project :minor-alpha) => (as-string "[[1 3 0] [\"alpha\" 0]]")
   (provided
     (git/version) => ["[[1 2 3] nil nil]" 3 "abcd" false]
-    (git/tag "[[1 3 0] [\"alpha\" 0]]") => ..tagResult..))
+    (git/tag "[[1 3 0] [\"alpha\" 0]]" (as-checker keyword?) anything) => ..tagResult..))
 
 (fact "deploy-when-anchored ensures deploy tasks are called when project is on a stable commit and clean"
   (against-background ..project.. =contains=> {:workspace {:status {:tracking ["## master"]
