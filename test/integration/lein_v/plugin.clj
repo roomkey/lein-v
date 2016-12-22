@@ -32,6 +32,12 @@
   => (contains {:version "2.3.4-alpha4"
                :manifest (contains {"Implementation-Version" "2.3.4-alpha4"})}))
 
+(fact "Commit with zero commit distance yields simple version on different manifest entry key"
+  (against-background (before :facts (do (clone! "test1.repo"))))
+  (middleware (assoc-in $mproject [:v :manifest-version-name] "Specification-Version"))
+  => (contains {:version "2.3.4-alpha4"
+                :manifest (contains {"Specification-Version" "2.3.4-alpha4"})}))
+
 (fact "Commit with positive commit distance yields complete version"
   (against-background (before :facts (do (clone! "test1.repo") (commit!))))
   (middleware $mproject)
