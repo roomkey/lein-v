@@ -4,10 +4,11 @@ Drive leiningen project version from git instead of the other way around.
 
 ## Motivation ##
 The lein-v plugin was driven by several beliefs:
-1. Versioning should be painless in the simplest cases
-2. Unique (and reproducible/commited) source should produce unique versions
-3. Versioning information should live in the SCM repo -the source of source truth
-4. Version information is metadata and should not be stored within with the data it describes
+
+	1. Versioning should be painless in the simplest cases
+	2. Unique (and reproducible/commited) source should produce unique versions
+	3. Versioning information should live in the SCM repo -the source of source truth
+	4. Version information is metadata and should not be stored within with the data it describes
 
 Lein-v uses git metadata to build a unique, reproducible and semantically meaningful version for every commit.  Along the way, it adds useful metadata to your project and artifacts (jar and war files) to tie them back to a specific commit.  Finally, it helps ensure that you never release an irreproduceable artifact.
 
