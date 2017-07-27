@@ -8,7 +8,7 @@ The lein-v plugin was driven by several beliefs:
 	1. Versioning should be painless in the simplest cases
 	2. Unique (and reproducible/commited) source should produce unique versions
 	3. Versioning information should live in the SCM repo -the source of source truth
-	4. Version information is metadata and should not be stored within with the data it describes
+	4. Version information is metadata and should not be stored within the data it describes
 
 Lein-v uses git metadata to build a unique, reproducible and semantically meaningful version for every commit.  Along the way, it adds useful metadata to your project and artifacts (jar and war files) to tie them back to a specific commit.  Finally, it helps ensure that you never release an irreproduceable artifact.
 
@@ -16,10 +16,10 @@ Lein-v uses git metadata to build a unique, reproducible and semantically meanin
 
 There are two lein sub-tasks within the v namespace intended for direct use:
 
-###lein v show
+### lein v show
 Show the effective version of the project and workspace state.
 
-###lein v cache
+### lein v cache
 Cache the effective version of the project to a file (default is `version.clj`) in the first source directory (typically `src`).  It is possible to have the version cached to a file automatically by defining a prep task in your project:
 
     :prep-tasks [["v" "cache" "src"]]
@@ -41,7 +41,7 @@ becomes this:
 Assuming that there is a git tag `v1.0.1` on the commit `HEAD~~`, and that the SHA of `HEAD` is uniquely identified by `abcd`.  This behavior is automatically enabled whenever lein-v finds the project version to be the keyword `:lein-v`.
 
 ## Support for lein release ##
-As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningein user profile) as follows:
+As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningen user profile) as follows:
 
     :release-tasks [["vcs" "assert-committed"]
                     ["v" "update"] ;; compute new version & tag it
@@ -100,7 +100,7 @@ HEAD to the most recent version tag (looking towards the root of the tree) and t
 It is still possible to do a raw `lein deploy`, in which case the version will be that determined by
 lein-v (most likely something like "1.0.1-2-0xabcd").
 
-Note: you can provide your own implementation of many of these rules.  See the source code for details on defining data types adhering to the protocols in the `leiningein.v.protocols` namespace.  Currently there are implementations for maven (version 3) and Semantic Versioning (version 2) available.
+Note: you can provide your own implementation of many of these rules.  See the source code for details on defining data types adhering to the protocols in the `leiningen.v.protocols` namespace.  Currently there are implementations for maven (version 3) and Semantic Versioning (version 2) available.
 
 ### References and Relevant Reading ###
 
