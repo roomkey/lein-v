@@ -33,13 +33,13 @@
 (defn- update*
   "Returns SCM version updated (newer or same in the case of snapshot) per the supplied operation"
   [version ops]
-  {:pre [(every? keyword? ops)
-         (satisfies? leiningen.v.version.protocols/Releasable version)
-         (not (dirty? version))
-         (pos? (distance version))]
-   :post [(= (dirty? version) (dirty? %)) ; Updated versions should retain their dirty flag
-          (= (sha version) (sha %)) ; Updated versions should retain their identity
-          (or (= version %) (zero? (distance %))) ; Updated versions should have a zero distance
+  {:pre  [(every? keyword? ops)
+          (satisfies? leiningen.v.version.protocols/Releasable version)
+          (not (dirty? version))
+          (pos? (distance version))]
+   :post [(= (dirty? version) (dirty? %))                   ; Updated versions should retain their dirty flag
+          (= (sha version) (sha %))                         ; Updated versions should retain their identity
+          (or (= version %) (zero? (distance %)))           ; Updated versions should have a zero distance
           ((complement pos?) (compare version %))
           (satisfies? leiningen.v.version.protocols/SCMHosted %)]}
   (loop [[op & ops] ops v version]
@@ -103,15 +103,34 @@
   (let [v (str (or (version (:v project)) "UNKNOWN"))
         vk (str (or (:manifest-version-name (:v project)) "Implementation-Version"))]
     (-> project
-       (assoc-in [:version] v)
-       (assoc-in [:manifest vk] v))))
+        (assoc-in [:version] v)
+        (assoc-in [:manifest vk] v))))
+
+(defn- update-dependency [v d]
+  (if-not (second d)
+    (assoc d 1 v)
+    d))
+
+; => (update-dependency "42" ["abc" "1.0"])
+; ["abc" "1.0"]
+; => (update-dependency "42" ["abc" (quote lein-v)])
+; ["abc" "42"]
+
+
+(defn dependency-version-from-scm
+  [project]
+  (let [v (str (or (version (:v project)) "UNKNOWN"))
+        vk (str (or (:manifest-version-name (:v project)) "Implementation-Version"))]
+    (update-in project
+               [:dependencies]
+               #(map (partial update-dependency v) %1))))
 
 (defn add-workspace-data
   [project]
   (if-let [wss (workspace-state project)]
     (-> project
-        (assoc-in ,, [:workspace] wss)
-        (assoc-in ,, [:manifest "Workspace-Description"] (:describe wss))
-        (assoc-in ,, [:manifest "Workspace-Tracking-Status"] (string/join " || " (get-in wss [:status :tracking])))
-        (assoc-in ,, [:manifest "Workspace-File-Status"] (string/join " || " (get-in wss [:status :files]))))
+        (assoc-in,, [:workspace] wss)
+        (assoc-in,, [:manifest "Workspace-Description"] (:describe wss))
+        (assoc-in,, [:manifest "Workspace-Tracking-Status"] (string/join " || " (get-in wss [:status :tracking])))
+        (assoc-in,, [:manifest "Workspace-File-Status"] (string/join " || " (get-in wss [:status :files]))))
     project))
