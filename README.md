@@ -40,6 +40,40 @@ becomes this:
 
 Assuming that there is a git tag `v1.0.1` on the commit `HEAD~~`, and that the SHA of `HEAD` is uniquely identified by `abcd`.  This behavior is automatically enabled whenever lein-v finds the project version to be the keyword `:lein-v`.
 
+## Dependencies
+
+In case you're using a monorepository, you could also use lein-v to determine the current version of dependencies.
+
+Add the `leiningen.v/dependency-version-from-scm` middleware to your project like this:
+
+```
+  :middleware [leiningen.v/version-from-scm
+               leiningen.v/dependency-version-from-scm
+               leiningen.v/add-workspace-data]
+```
+
+Now, if you set the version of a dependency from your monorepo to nil (just as you would using managed-dependencies), it will be replaced
+with the current version from git (which is the same as the version of the project you're currently working on).
+
+```
+  :dependencies
+  [[commons-io "2.5"]
+   [example/lib-a nil]
+   [example/lib-b nil]
+   [org.clojure/clojure "1.8.0"]])
+```
+
+becomes
+
+```
+  :dependencies
+  [[commons-io "2.5"]
+   [example/lib-a "1.0.1-2-0xabcd"]
+   [example/lib-b "1.0.1-2-0xabcd"]
+   [org.clojure/clojure "1.8.0"]])
+```
+
+
 ## Support for lein release ##
 As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningen user profile) as follows:
 
