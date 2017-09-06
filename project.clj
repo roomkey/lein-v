@@ -1,4 +1,4 @@
-(defproject com.roomkey/lein-v :lein-v
+(defproject com.roomkey/lein-v "0.0.0"
   :description "A Leiningen plugin to reflect on the SCM workspace of a project"
   :url "https://github.com/roomkey/lein-v"
   :release-tasks [["v" "assert-anchored"]
