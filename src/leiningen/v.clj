@@ -119,18 +119,17 @@
 
 (defn dependency-version-from-scm
   [project]
-  (let [v (str (or (version (:v project)) "UNKNOWN"))
-        vk (str (or (:manifest-version-name (:v project)) "Implementation-Version"))]
-    (update-in project
-               [:dependencies]
-               #(map (partial update-dependency v) %1))))
+  (let [v (str (or (version (:v project)) "UNKNOWN"))]
+    (update project
+            :dependencies
+            #(map (partial update-dependency v) %1))))
 
 (defn add-workspace-data
   [project]
   (if-let [wss (workspace-state project)]
     (-> project
-        (assoc-in,, [:workspace] wss)
-        (assoc-in,, [:manifest "Workspace-Description"] (:describe wss))
-        (assoc-in,, [:manifest "Workspace-Tracking-Status"] (string/join " || " (get-in wss [:status :tracking])))
-        (assoc-in,, [:manifest "Workspace-File-Status"] (string/join " || " (get-in wss [:status :files]))))
+        (assoc-in [:workspace] wss)
+        (assoc-in [:manifest "Workspace-Description"] (:describe wss))
+        (assoc-in [:manifest "Workspace-Tracking-Status"] (string/join " || " (get-in wss [:status :tracking])))
+        (assoc-in [:manifest "Workspace-File-Status"] (string/join " || " (get-in wss [:status :files]))))
     project))
