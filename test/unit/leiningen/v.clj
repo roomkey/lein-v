@@ -10,6 +10,11 @@
 
 (def $project {:version :lein-v :v {:from-scm 'leiningen.v.impl/from-scm}})
 
+(def $project-with-dependencies (assoc $project
+                                 :dependencies [["abc" "1.0"]
+                                                ["def" nil]]))
+
+
 (defchecker as-string
   [expected]
   (checker [actual]
@@ -22,6 +27,15 @@
 (fact "default version is used if git base version is not available"
   (version-from-scm $project) => (contains {:version "[[0 0 0] nil 4 \"abcd\"]"})
   (provided (git/version) => [nil 4 "abcd" false]))
+
+(fact "git version components are injected into dependencies if available"
+      (:dependencies (dependency-version-from-scm $project-with-dependencies)) => (contains [["def" "[[1 2 3] nil 3 \"abcd\" true]"]])
+      (provided (git/version) => ["[[1 2 3] nil]" 3 "abcd" true]))
+
+(fact "default version is used for dependencies if git base version is not available"
+      (:dependencies (dependency-version-from-scm $project-with-dependencies)) => (contains [["def" "[[0 0 0] nil 4 \"abcd\"]"]])
+      (provided (git/version) => [nil 4 "abcd" false]))
+
 
 (fact "tag is created with updated version"
   (update $project :minor) => (as-string "[[1 3 0] nil]")
