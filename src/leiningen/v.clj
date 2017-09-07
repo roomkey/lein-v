@@ -111,18 +111,12 @@
     (assoc d 1 v)
     d))
 
-; => (update-dependency "42" ["abc" "1.0"])
-; ["abc" "1.0"]
-; => (update-dependency "42" ["abc" (quote lein-v)])
-; ["abc" "42"]
-
-
 (defn dependency-version-from-scm
   [project]
   (let [v (str (or (version (:v project)) "UNKNOWN"))]
-    (update project
-            :dependencies
-            #(map (partial update-dependency v) %1))))
+    (clojure.core/update project
+                         :dependencies
+                         #(map (partial update-dependency v) %1))))
 
 (defn add-workspace-data
   [project]
