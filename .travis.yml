@@ -1,0 +1,5 @@
+language: clojure
+jdk:
+  - oraclejdk8
+
+script: "lein do clean, check, midje"
