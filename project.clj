@@ -10,7 +10,7 @@
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.apache.maven/maven-artifact "3.3.9"]]
+                 [org.apache.maven/maven-artifact "3.5.0"]]
   :profiles {:dev {:dependencies [[midje "1.8.3"]]
                    :plugins [[lein-midje "3.2.1"]]
                    :eastwood {:config-files []
