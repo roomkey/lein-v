@@ -2,6 +2,8 @@
 
 Drive leiningen project version from git instead of the other way around.
 
+[![Build Status](https://secure.travis-ci.org/com.roomkey/lein-v.png)](http://travis-ci.org/com.roomkey/lein-v)
+
 ## Motivation ##
 The lein-v plugin was driven by several beliefs:
 
@@ -122,6 +124,6 @@ Note: you can provide your own implementation of many of these rules.  See the s
 
 ## License ##
 
-Copyright (C) 2016 Room Key
+Copyright (C) 2017 Room Key
 
 Distributed under the Eclipse Public License, the same as Clojure.
