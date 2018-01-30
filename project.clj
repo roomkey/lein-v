@@ -15,7 +15,6 @@
                    :plugins [[lein-midje "3.2.1"]]
                    :eastwood {:config-files []
                               :exclude-linters []
-                              ;:add-linters [:unused-namespaces]
                               :source-paths ["src"] ;; somehow "test" sneaks in anyway, so...
                               :exclude-namespaces [:test-paths]}}}
   :license {:name "Eclipse Public License"
