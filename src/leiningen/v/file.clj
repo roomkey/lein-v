@@ -10,6 +10,14 @@
                      (format "(def raw-version \"%s\")" describe)
                      ""]))
 
+(defn- cache-edn-source
+  "return EDN data structure for the version cache EDN file"
+  [version describe]
+  (string/join "{"
+               (format ":version \"%s\"" version)
+               (format ":raw-version \"%s\"" describe)
+               "}"))
+
 (defn version
   "Peek into the source of the project to read the cached version"
   [file]
@@ -22,3 +30,7 @@
   "Write the version of the given Leiningen project to a file-backed cache"
   [path version describe]
   (spit path (cache-source version describe)))
+
+(defn cache-edn
+  [path version describe]
+  (spit path (cache-edn-source version describe)))

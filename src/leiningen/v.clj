@@ -27,7 +27,9 @@
   "Cache the effective version for use outside the scope of leiningen evaluation"
   [project & [dir]]
   (let [{{describe :describe} :workspace :keys [version source-paths]} project
-        path (str (or dir (first source-paths)) "/version.clj")]
+        path (str (or dir (first source-paths)) "/version.clj")
+        path-edn (str (or dir (first source-paths)) "/version.edn")]
+    (file/cache-edn path-edn version describe)
     (file/cache path version describe)))
 
 (defn- update*
