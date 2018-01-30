@@ -18,11 +18,18 @@
 (def $mproject {:version :lein-v :source-paths ["/X"] :v {:from-scm 'leiningen.v.maven/from-scm
                                                           :sign nil}})
 
-(fact "cache task works"
+(fact "cache task with formats works"
+  (against-background (before :facts (do (clone! "test0.repo") (commit!))))
+  (v (version-from-scm $mproject) "cache" "/X" "cljs" "edn") => anything
+  (provided
+    (spit #"/X/version.cljs" (as-checker (partial re-find #"1.2.3-1-0x[0-9a-f]{4,}"))) => ..result..
+    (spit #"/X/version.edn" (as-checker (partial re-find #"1.2.3-1-0x[0-9a-f]{4,}"))) => ..result..))
+
+(fact "cache task without formats works and spit only the clj format"
   (against-background (before :facts (do (clone! "test0.repo") (commit!))))
   (v (version-from-scm $mproject) "cache") => anything
   (provided
-    (spit "/X/version.clj" (as-checker (partial re-find #"1.2.3-1-0x[0-9a-f]{4,}"))) => ..result..))
+   (spit #"/X/version.clj" (as-checker (partial re-find #"1.2.3-1-0x[0-9a-f]{4,}"))) => ..result..))
 
 (fact "update task works"
   (against-background (before :facts (do (clone! "test0.repo") (commit!))))

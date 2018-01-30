@@ -24,11 +24,11 @@
   (git/workspace-state project))
 
 (defn cache
-  "Cache the effective version for use outside the scope of leiningen evaluation"
-  [project & [dir]]
+  "Cache the effective version for use outside the scope of leiningen evaluation, after dir arguments, accepts several formats: clj, cljs or edn (spit clj format in none is supplied)"
+  [project & [dir & formats]]
   (let [{{describe :describe} :workspace :keys [version source-paths]} project
-        path (str (or dir (first source-paths)) "/version.clj")]
-    (file/cache path version describe)))
+        path-without-suffix (str (or dir (first source-paths)) "/version.")]
+    (file/cache path-without-suffix version describe formats)))
 
 (defn- update*
   "Returns SCM version updated (newer or same in the case of snapshot) per the supplied operation"
