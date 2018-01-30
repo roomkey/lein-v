@@ -13,10 +13,10 @@
 (defn- cache-edn-source
   "return EDN data structure for the version cache EDN file"
   [version describe]
-  (string/join "{"
-               (format ":version \"%s\"" version)
-               (format ":raw-version \"%s\"" describe)
-               "}"))
+  (string/join "\n"[ "{"
+                    (format ":version \"%s\"" version)
+                    (format ":raw-version \"%s\"" describe)
+                    "}"]))
 
 (defn version
   "Peek into the source of the project to read the cached version"
