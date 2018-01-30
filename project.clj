@@ -21,6 +21,6 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :jvm-opts ["-Djava.io.tmpdir=./tmp"]
-  :repositories [["rk-public" {:url "http://rk-maven-public.s3-website-us-east-1.amazonaws.com/releases/"}]
-                 ["rk-private" {:url "s3://rk-maven/releases/"}]]
+  ;;:repositories [["rk-public" {:url "https://rk-maven-public.s3-website-us-east-1.amazonaws.com/releases/"}]
+                 ;;["rk-private" {:url "s3://rk-maven/releases/"}]]
   :eval-in-leiningen true)
