@@ -4,7 +4,7 @@
   :release-tasks [["v" "assert-anchored"]
                   ["v" "update"]
                   ["vcs" "push"]
-                  ["deploy"]]
+                  ["deploy" "clojars"]]
   :min-lein-version "2.0.0"
   :hooks [leiningen.v/deploy-when-anchored]
   :middleware [leiningen.v/version-from-scm
