@@ -82,7 +82,7 @@
   [task & [project :as args]]
   (if (anchored? project)
     (apply task args)
-    (leiningen.core.main/warn "Workspace is not anchored" (:workspace project))))
+    (leiningen.core.main/abort (format "Workspace is not anchored: %s" (:workspace project)))))
 
 ;; Plugin task.
 (defn v
