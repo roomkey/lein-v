@@ -3,13 +3,16 @@
         [clojure.test]
         [midje.sweet]))
 
-(defchecker valid-version-source
+(defchecker valid-version-source-or-data-structure
   [actual]
-  (load-string actual)
-  (and (= "..version.." (eval 'version/version))
-       (= "..describe.." (eval 'version/raw-version))))
+  (let [version-edn (load-string actual)]
+    (or (and (= "..version.." (eval 'version/version))
+             (= "..describe.." (eval 'version/raw-version)))
+        (and (= "..version.." (:version version-edn))
+             (= "..describe.." (:raw-version version-edn))))))
+
 
 (fact "Version source code is cached"
-  (cache ..path.. ..version.. ..describe..) => anything
+  (cache ..path.. ..version.. ..describe.. ..formats..) => anything
   (provided
-    (clojure.core/spit ..path.. valid-version-source) => ..ignored..))
+   (clojure.core/spit (has-prefix ..path..) valid-version-source-or-data-structure) => ..ignored..))
