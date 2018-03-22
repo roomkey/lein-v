@@ -138,6 +138,21 @@ lein-v (most likely something like "1.0.1-2-0xabcd").
 
 Note: you can provide your own implementation of many of these rules.  See the source code for details on defining data types adhering to the protocols in the `leiningen.v.protocols` namespace.  Currently there are implementations for maven (version 3) and Semantic Versioning (version 2) available.
 
+### Migrating to lein-v 
+
+When migrating an existing project.clj, you may not want your project to version at 0.0.0 again. You may seed a git tag for lein-v to use. In the example below, the artifact's most recent release is 1.3.2.
+
+```
+git tag --annotate --message "Seeding lein-v version" v1.3.12
+```
+
+To verify the result had the desired effect, see output of `lein v version`.
+
+```
+> lein v version
+Effective version: 1.3.12 ...
+```
+
 ### References and Relevant Reading ###
 
 * (<http://maven.apache.org/ref/3.2.5/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html>)

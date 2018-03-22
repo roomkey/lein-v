@@ -68,6 +68,11 @@
         clean? (empty? files)]
     (and stable? clean?)))
 
+(defn assert-anchored
+  "Assert the workspace has been pushed and is clean; in principle, the project is thus reproducible"
+  [project]
+  (assert (anchored? project) "Workspace is not clean and pushed to remote"))
+
 (defn- update-source-hook
   "Update the cached version available to the application"
   [task & [project :as args]]
@@ -84,12 +89,12 @@
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  {:subtasks [#'cache #'update]}
+  {:subtasks [#'cache #'update #'assert-anchored]}
   [project & [subtask & other]]
   (condp = subtask
     "cache" (apply cache project other)
     "update" (apply update project other)
-    "assert-anchored" (assert (anchored? project) "Workspace is not clean and pushed to remote")
+    "assert-anchored" (apply assert-anchored project other)
     (let [{:keys [version workspace]} project]
       (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 

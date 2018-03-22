@@ -4,23 +4,20 @@
   :release-tasks [["v" "assert-anchored"]
                   ["v" "update"]
                   ["vcs" "push"]
-                  ["deploy"]]
+                  ["deploy" "clojars"]]
   :min-lein-version "2.0.0"
   :hooks [leiningen.v/deploy-when-anchored]
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.apache.maven/maven-artifact "3.5.0"]]
-  :profiles {:dev {:dependencies [[midje "1.8.3"]]
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.apache.maven/maven-artifact "3.5.2"]]
+  :profiles {:dev {:dependencies [[midje "1.9.1"]]
                    :plugins [[lein-midje "3.2.1"]]
                    :eastwood {:config-files []
                               :exclude-linters []
-                              ;:add-linters [:unused-namespaces]
                               :source-paths ["src"] ;; somehow "test" sneaks in anyway, so...
                               :exclude-namespaces [:test-paths]}}}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :jvm-opts ["-Djava.io.tmpdir=./tmp"]
-  ;;:repositories [["rk-public" {:url "https://rk-maven-public.s3-website-us-east-1.amazonaws.com/releases/"}]
-                 ;;["rk-private" {:url "s3://rk-maven/releases/"}]]
   :eval-in-leiningen true)

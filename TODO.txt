@@ -1,3 +1,4 @@
 1. Use jgit instead of shelling out to git executable
    * http://download.eclipse.org/jgit/site/4.1.0.201509280440-r/apidocs/index.html
    * https://github.com/centic9/jgit-cookbook
+2. Prevent multiple version tags on the same commit (with possibilty to override).
