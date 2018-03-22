@@ -26,7 +26,7 @@ Cache the effective version of the project to a file (default is `version.clj`) 
 
     :prep-tasks [["v" "cache" "src"]]
     
-The `lein v cache` command has a variadic argument that is the following: first is the directory to output to (default to `src`), then the rest is the list of the output sufix you wish and hence format (default to `clj`). The available suffixes are: clj, cljs, cljx, cljc and edn. 
+The `lein v cache` command has a variadic argument that is the following: first is the directory to output to (default to `src`), then the rest is the list of the output suffixes you wish and hence format (default to `clj`). The available suffixes are: clj, cljs, cljx, cljc and edn. 
 You have two formats for file version output depending on the suffix:
 
 - Clojure source code: available via the `clj`, `cljs`, `cljc` or `cljx` option 
