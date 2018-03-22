@@ -22,7 +22,7 @@
   (against-background (before :facts (do (clone! "test0.repo") (commit!))))
   (v (version-from-scm $mproject) "cache") => anything
   (provided
-    (spit "/X/version.clj" (as-checker (partial re-find #"1.2.3-1-0x[0-9a-f]{4,}"))) => ..result..))
+    (spit #"/X/version.(clj|edn)" (as-checker (partial re-find #"1.2.3-1-0x[0-9a-f]{4,}"))) => ..result..))
 
 (fact "update task works"
   (against-background (before :facts (do (clone! "test0.repo") (commit!))))
