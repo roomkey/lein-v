@@ -1,0 +1,4 @@
+#!/bin/bash
+
+lein deps :tree
+lein test
