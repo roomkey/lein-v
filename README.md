@@ -2,6 +2,7 @@
 
 Drive leiningen project version from git instead of the other way around.
 
+[![Clojars Project](https://img.shields.io/clojars/v/com.roomkey/lein-v.svg)](https://clojars.org/com.roomkey/lein-v)
 [![Build Status](https://secure.travis-ci.org/com.roomkey/lein-v.png)](http://travis-ci.org/com.roomkey/lein-v)
 
 ## Motivation ##
