@@ -7,31 +7,30 @@
 (def ^:dynamic *min-sha-length* 4)
 (def ^:dynamic *dirty-mark* "DIRTY")
 
-(def unix-prefix ["/bin/bash" "-c"])
+(def unix-git-command "git")
 
 (def ^:private windows?
   (memoize (fn [] (some-> (System/getProperty "os.name")
                           (.startsWith "Windows")))))
 
-(defn- find-windows-git
-  []
-  (let [{:keys [exit out err]} (shell/sh "where" "git.exe")]
-    (if-not (zero? exit)
-      (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
-                               "stdout: %s\n stderr: %s")
-                          exit out err))
-      (string/trim out))))
+(def ^:private find-windows-git
+  (memoize
+    (fn []
+      (let [{:keys [exit out err]} (shell/sh "where" "git.exe")]
+        (if-not (zero? exit)
+          (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
+                                   "stdout: %s\n stderr: %s")
+                              exit out err))
+          (string/trim out))))))
 
-(defn- command-line
-  [command]
+(defn- git-exe []
   (if (windows?)
-    (concat [(find-windows-git)] (string/split command #" +"))
-    (concat unix-prefix [(str "git " command)])))
+    (find-windows-git)
+    unix-git-command))
 
 (defn- git-command
-  [command]
-  (let [cmd (command-line command)
-        _ (println cmd)
+  [& arguments]
+  (let [cmd (conj (seq arguments) (git-exe))
         {:keys [exit out err]} (apply shell/sh cmd)]
     (if (zero? exit)
       (string/split-lines out)
@@ -39,20 +38,21 @@
 
 (defn- root-distance
   []
-  (count (git-command (format "rev-list HEAD"))))
+  (count (git-command "rev-list" "HEAD")))
 
 (defn- git-status []
-  (git-command "status -b --porcelain"))
+  (git-command "status" "-b" "--porcelain"))
 
 (defn- git-describe [prefix min-sha-length]
-  (git-command (format "describe --long --match '%s*.*' --abbrev=%d --dirty=-%s --always"
-                       prefix min-sha-length *dirty-mark*)))
+  (git-command "describe" "--long" "--match"
+               (str prefix "*.*")
+               (format "--abbrev=%d" min-sha-length)
+               (str "--dirty=-" *dirty-mark*)
+               "--always"))
 
 (defn tag [v & {:keys [prefix sign] :or {prefix *prefix* sign "--sign"}}]
-  (let []
-    (git-command
-     (string/join " " (filter identity ["tag" sign "--annotate"
-                                        "--message" "\"Automated lein-v release\"" (str prefix v)])))))
+  (apply git-command (filter identity ["tag" sign "--annotate"
+                                       "--message" "Automated lein-v release" (str prefix v)])))
 
 (defn version
   [& {:keys [prefix min-sha-length]
