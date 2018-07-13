@@ -7,15 +7,35 @@
 (def ^:dynamic *min-sha-length* 4)
 (def ^:dynamic *dirty-mark* "DIRTY")
 
-(let [shell "/bin/bash"
-      cmd [shell "-c"]]
-  (defn- git-command
-    [command]
-    (let [cmd (conj cmd (str "git " command))
-          {:keys [exit out err]} (apply shell/sh cmd)]
-      (if (zero? exit)
-        (string/split-lines out)
-        (do (lein/warn err) nil)))))
+(def unix-prefix ["/bin/bash" "-c"])
+
+(def ^:private windows?
+  (memoize (fn [] (some-> (System/getProperty "os.name")
+                          (.startsWith "Windows")))))
+
+(defn- find-windows-git
+  []
+  (let [{:keys [exit out err]} (shell/sh "where" "git.exe")]
+    (if-not (zero? exit)
+      (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
+                               "stdout: %s\n stderr: %s")
+                          exit out err))
+      (string/trim out))))
+
+(defn- command-line
+  [command]
+  (if (windows?)
+    (concat [(find-windows-git)] (string/split command #" +"))
+    (concat unix-prefix [(str "git " command)])))
+
+(defn- git-command
+  [command]
+  (let [cmd (command-line command)
+        _ (println cmd)
+        {:keys [exit out err]} (apply shell/sh cmd)]
+    (if (zero? exit)
+      (string/split-lines out)
+      (do (lein/warn err) nil))))
 
 (defn- root-distance
   []
