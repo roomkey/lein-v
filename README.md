@@ -84,6 +84,8 @@ becomes this:
 
 Assuming that there is a git tag `v1.0.1` on the commit `HEAD~~`, and that the SHA of `HEAD` is uniquely identified by `abcd`.  This behavior is automatically enabled whenever lein-v finds the project version to be the keyword `:lein-v`.
 
+Note that the project version can be set to either the keyword `:lein-v` or the string `":lein-v"` (the Cursive IDE, in particular, gets confused by the keyword version).
+
 ## Dependencies
 
 In case you're using a monorepository, you could also use lein-v to determine the current version of dependencies.
