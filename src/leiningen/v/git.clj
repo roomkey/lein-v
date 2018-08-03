@@ -9,14 +9,13 @@
 
 (def unix-git-command "git")
 
-(def ^:private windows?
-  (memoize (fn [] (some-> (System/getProperty "os.name")
-                          (.startsWith "Windows")))))
+(def windows? (some->> (System/getProperty "os.name")
+                       (re-matches #"(?i).*windows.*")))
 
 (def ^:private find-windows-git
   (memoize
     (fn []
-      (let [{:keys [exit out err]} (shell/sh "where" "git.exe")]
+      (let [{:keys [exit out err]} (shell/sh "where.exe" "git.exe")]
         (if-not (zero? exit)
           (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
                                    "stdout: %s\n stderr: %s")
@@ -24,13 +23,13 @@
           (string/trim out))))))
 
 (defn- git-exe []
-  (if (windows?)
+  (if windows?
     (find-windows-git)
     unix-git-command))
 
 (defn- git-command
   [& arguments]
-  (let [cmd (conj (seq arguments) (git-exe))
+  (let [cmd (conj arguments (git-exe))
         {:keys [exit out err]} (apply shell/sh cmd)]
     (if (zero? exit)
       (string/split-lines out)
