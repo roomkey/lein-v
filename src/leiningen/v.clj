@@ -85,15 +85,17 @@
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  {:subtasks [#'cache #'update #'assert-anchored]}
+  {:subtasks [#'cache #'update #'assert-anchored #'abort-when-not-anchored]}
   [project & [subtask & other]]
-  (condp = subtask
+
+  (case subtask
     "cache" (apply cache project other)
     "update" (apply update project other)
     "assert-anchored" (apply assert-anchored project other)
     "abort-when-not-anchored" (apply abort-when-not-anchored project other)
-    (let [{:keys [version workspace]} project]
-      (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
+    nil (let [{:keys [version workspace]} project]
+          (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))
+    (leiningen.core.main/warn "Unrecognized subtask" subtask)))
 
 ;; Hooks
 (defn ^:deprecated deploy-when-anchored
