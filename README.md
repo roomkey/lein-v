@@ -26,11 +26,11 @@ Show the effective version of the project and workspace state.
 Cache the effective version of the project to a file (default is `version.clj`) in the first source directory (typically `src`). It is possible to have the version cached to a file automatically by defining a prep task in your project like this:
 
     :prep-tasks [["v" "cache" "src"]]
-    
-The `lein v cache` command has a variadic argument that is the following: first is the directory to output to (default to `src`), then the rest is the list of the output suffixes you wish and hence format (default to `clj`). The available suffixes are: clj, cljs, cljx, cljc and edn. 
+
+The `lein v cache` command has a variadic argument that is the following: first is the directory to output to (default to `src`), then the rest is the list of the output suffixes you wish and hence format (default to `clj`). The available suffixes are: clj, cljs, cljx, cljc and edn.
 You have two formats for file version output depending on the suffix:
 
-- Clojure source code: available via the `clj`, `cljs`, `cljc` or `cljx` option 
+- Clojure source code: available via the `clj`, `cljs`, `cljc` or `cljx` option
 - EDN data structure: available via the `edn` option
 
 #### Examples of lein v cache invocation
@@ -67,6 +67,13 @@ lein v cache src edn
 ~(str "target/releases/js/myapp-" (:version (clojure.edn/read-string (slurp "src/cljs/version.edn")))".min.js")
 ```
 
+As of leiningen 2.4.1, a less intrusive means of extracting the verison (with caching to a dedicated file) is as follows:
+```clojure
+(let [pom-properties (with-open [pom-properties-reader (io/reader (io/resource "META-INF/maven/x/x/pom.properties"))]
+                       (doto (java.util.Properties.)
+                         (.load pom-properties-reader)))]
+  (get pom-properties "version"))
+```
 
 ## Hooks ##
 Through the use of the Leiningen hooks functionality, lein-v ensures that
@@ -180,7 +187,7 @@ lein-v (most likely something like "1.0.1-2-0xabcd").
 
 Note: you can provide your own implementation of many of these rules.  See the source code for details on defining data types adhering to the protocols in the `leiningen.v.protocols` namespace.  Currently there are implementations for maven (version 3) and Semantic Versioning (version 2) available.
 
-### Migrating to lein-v 
+### Migrating to lein-v
 
 When migrating an existing project.clj, you may not want your project to version at 0.0.0 again. You may seed a git tag for lein-v to use. In the example below, the artifact's most recent release is 1.3.2.
 

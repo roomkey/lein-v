@@ -111,6 +111,14 @@
         (assoc-in [:version] v)
         (assoc-in [:manifest vk] v))))
 
+;; https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md
+;; Since leiningen 2.4.1, this is a less intrusive way of finding the version of the application:
+;;
+;; (let [pom-properties (with-open [pom-properties-reader (io/reader (io/resource "META-INF/maven/x/x/pom.properties"))]
+;;                        (doto (java.util.Properties.)
+;;                          (.load pom-properties-reader)))]
+;;   (get pom-properties "version"))
+
 (defn- update-dependency [v d]
   (if-not (second d)
     (assoc d 1 v)
