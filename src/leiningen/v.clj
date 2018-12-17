@@ -7,7 +7,7 @@
             [leiningen.v.version.protocols :refer :all]
             [leiningen.v [maven] [semver]]
             [leiningen.deploy]
-            [leiningen.core.main :refer [info warn debug]]
+            [leiningen.core.main :refer [info warn debug abort]]
             [leiningen.release]
             [robert.hooke]))
 
@@ -84,6 +84,10 @@
     (apply task args)
     (leiningen.core.main/warn "Workspace is not anchored" (:workspace project))))
 
+(defn abort-when-not-anchored
+  [project & [subtask & other]]
+  (when (not (anchored? project)) (abort "Workspace is not anchored" (str (:workspace project)))))
+
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
@@ -93,6 +97,7 @@
     "cache" (apply cache project other)
     "update" (apply update project other)
     "assert-anchored" (apply assert-anchored project other)
+    "abort-when-not-anchored" (apply abort-when-not-anchored project other)
     (let [{:keys [version workspace]} project]
       (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
