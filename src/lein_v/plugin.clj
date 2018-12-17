@@ -1,9 +1,6 @@
 (ns lein-v.plugin
   (:require [leiningen.v :refer [deploy-when-anchored version-from-scm add-workspace-data]]))
 
-(defn hooks []
-  (deploy-when-anchored))
-
 (defn- select-versioner [version]
   (if (= :lein-v version)
     version-from-scm

@@ -97,7 +97,7 @@
       (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))))
 
 ;; Hooks
-(defn deploy-when-anchored
+(defn ^:deprecated deploy-when-anchored
   "Abort deploys unless workspace is anchored"
   []
   (robert.hooke/add-hook #'leiningen.deploy/deploy when-anchored-hook))
