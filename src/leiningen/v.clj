@@ -71,12 +71,6 @@
   [project]
   (assert (anchored? project) "Workspace is not clean and pushed to remote"))
 
-(defn- update-source-hook
-  "Update the cached version available to the application"
-  [task & [project :as args]]
-  (cache project)
-  (apply task args))
-
 (defn- when-anchored-hook
   "Run the task only when the workspace is anchored"
   [task & [project :as args]]
