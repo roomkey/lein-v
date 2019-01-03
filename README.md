@@ -19,7 +19,7 @@ Lein-v uses git metadata to build a unique, reproducible and semantically meanin
 
 There are two lein sub-tasks within the v namespace intended for direct use:
 
-### lein v show
+### lein v
 Show the effective version of the project and workspace state.
 
 ### lein v cache
