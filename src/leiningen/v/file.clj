@@ -32,6 +32,7 @@
 (defn cache
   "Write the version of the given Leiningen project to a file-backed caches in different formats: clj (always written for backwards compatibility if no formats are provided), cljs, edn"
   [path version describe formats]
+  (clojure.java.io/make-parents path)
   (when (= 0 (count formats))
     (spit (str path "clj") (cache-source version describe)))
   (when (in? formats "clj") (spit (str path "clj") (cache-source version describe)))
@@ -39,4 +40,3 @@
   (when (in? formats "cljc") (spit (str path "cljc") (cache-source version describe)))
   (when (in? formats "cljx") (spit (str path "cljx") (cache-source version describe)))
   (when (in? formats "edn") (spit (str path "edn") (cache-edn-source version describe))))
-
