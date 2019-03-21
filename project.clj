@@ -4,7 +4,7 @@
   :aliases {"deploy" ["do" ["v" "abort-if-not-anchored"] "deploy"]}
   :release-tasks [["v" "assert-anchored"]
                   ["v" "update"]
-                  ["vcs" "push"]
+                  ["v" "push-tags"]
                   ["v" "abort-when-not-anchored"]
                   ["deploy" "clojars"]]
   :min-lein-version "2.0.0"
