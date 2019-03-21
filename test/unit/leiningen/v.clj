@@ -87,3 +87,7 @@
                                                                         :files ["?? new-file.txt"]}}})
       (abort-when-not-anchored ..project..) => ..aborted..
       (provided (leiningen.core.main/abort (as-checker string?) (as-checker string?)) => ..aborted..))
+
+(fact "push-tags asks git to push tags"
+      (push-tags ..project..) => ..something..
+      (provided (leiningen.v.git/push-tags) => ..something..))

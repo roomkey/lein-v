@@ -82,17 +82,23 @@
   [project & [subtask & other]]
   (when (not (anchored? project)) (abort "Workspace is not anchored" (str (:workspace project)))))
 
+(defn push-tags
+  "Attempt to push tags regardless of freshness of current branch at default remote"
+  [project]
+  (git/push-tags))
+
 ;; Plugin task.
 (defn v
   "Show SCM workspace data"
-  {:subtasks [#'cache #'update #'assert-anchored #'abort-when-not-anchored]}
+  {:subtasks [#'abort-when-not-anchored #'assert-anchored #'cache #'push-tags #'update]}
   [project & [subtask & other]]
 
   (case subtask
-    "cache" (apply cache project other)
-    "update" (apply update project other)
-    "assert-anchored" (apply assert-anchored project other)
     "abort-when-not-anchored" (apply abort-when-not-anchored project other)
+    "assert-anchored" (apply assert-anchored project other)
+    "cache" (apply cache project other)
+    "push-tags" (apply push-tags project other)
+    "update" (apply update project other)
     nil (let [{:keys [version workspace]} project]
           (leiningen.core.main/info (format "Effective version: %s, SCM workspace state: %s" version workspace)))
     (leiningen.core.main/warn "Unrecognized subtask" subtask)))

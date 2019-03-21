@@ -14,13 +14,13 @@
 
 (def ^:private find-windows-git
   (memoize
-    (fn []
-      (let [{:keys [exit out err]} (shell/sh "where.exe" "git.exe")]
-        (if-not (zero? exit)
-          (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
-                                   "stdout: %s\n stderr: %s")
-                              exit out err))
-          (string/trim out))))))
+   (fn []
+     (let [{:keys [exit out err]} (shell/sh "where.exe" "git.exe")]
+       (if-not (zero? exit)
+         (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
+                                  "stdout: %s\n stderr: %s")
+                             exit out err))
+         (string/trim out))))))
 
 (defn- git-exe []
   (if windows?
@@ -52,6 +52,14 @@
 (defn tag [v & {:keys [prefix sign] :or {prefix *prefix* sign "--sign"}}]
   (apply git-command (filter identity ["tag" sign "--annotate"
                                        "--message" "Automated lein-v release" (str prefix v)])))
+
+;; This is needed because `lein vcs push` tries to push everything and gets rejected if branch is behind remote.
+;; But at this point that is irrelevant and misleading (as there is typically no "normal" commit to push anyways).
+;; The solution is the more restrictive `git push --tags`.
+(defn push-tags
+  "Push tags (only)"
+  []
+  (git-command "push" "--tags"))
 
 (defn version
   [& {:keys [prefix min-sha-length]

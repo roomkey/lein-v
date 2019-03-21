@@ -126,11 +126,11 @@ becomes
 
 
 ## Support for lein release ##
-As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningen user profile) as follows:
+As of version 5.0, lein-v adds support for leiningen's `release` task.  Specifically, the `lein v update` task can anchor a release process that ensures that git tags are created and pushed, and that those tags conform to sane versioning expectations.  To use `lein release` with lein-v, first modify `project.clj` (or your leiningen user profile) to something such as this:
 
     :release-tasks [["vcs" "assert-committed"]
                     ["v" "update"] ;; compute new version & tag it
-                    ["vcs" "push"]
+                    ["v" "push-tags"]
                     ["deploy"]]
 
 To effect version changes, lein-v's `update-version` task sees the versioning parameter
@@ -189,7 +189,7 @@ Note: you can provide your own implementation of many of these rules.  See the s
 
 ### Migrating to lein-v
 
-When migrating an existing project.clj, you may not want your project to version at 0.0.0 again. You may seed a git tag for lein-v to use. In the example below, the artifact's most recent release is 1.3.2.
+When migrating an existing project.clj, you may not want your project version to reset to v0.0.0 again. You may seed a git tag for lein-v to use. In the example below, the artifact's most recent release is 1.3.2.
 
 ```
 git tag --annotate --message "Seeding lein-v version" v1.3.12
@@ -222,6 +222,6 @@ Effective version: 1.3.12 ...
 
 ## License ##
 
-Copyright (C) 2017 Room Key
+Copyright (C) 2019 Room Key
 
 Distributed under the Eclipse Public License, the same as Clojure.

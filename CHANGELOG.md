@@ -1,5 +1,9 @@
 # lein-v News -- history of user-visible changes
 
+## 7.1.0 / 2019-03-22
+
+* Implement `push-tags` via `git push --tags` to circumvent limitation in `lein vcs push` which tries to push all commit objects and thus requires that the current branch be up-to-date.
+
 ## 7.0.0 / 2018-12-17
 
 * Remove implicit hooks (add `abort-when-not-anchored` as required in aliases or deploy tasks)
