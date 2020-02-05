@@ -10,9 +10,9 @@
   :min-lein-version "2.0.0"
   :middleware [leiningen.v/version-from-scm
                leiningen.v/add-workspace-data]
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.apache.maven/maven-artifact "3.6.0"]]
-  :profiles {:dev {:dependencies [[midje "1.9.4"]]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.apache.maven/maven-artifact "3.6.3"]]
+  :profiles {:dev {:dependencies [[midje "1.9.9"]]
                    :plugins [[lein-midje "3.2.1"]]
                    :eastwood {:config-files []
                               :exclude-linters []
