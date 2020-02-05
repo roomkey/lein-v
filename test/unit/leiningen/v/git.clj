@@ -67,3 +67,13 @@
       (push-tags) => ..whatever..
       (provided
        (#'leiningen.v.git/git-command "push" "--tags") => ..whatever..))
+
+
+(fact "push-tags invokes git correctly"
+      (#'leiningen.v.git/find-windows-git) => "1/git.exe"
+      (provided
+       (#'clojure.java.shell/sh "where.exe" "git.exe") => {:exit 0
+                                                           :out "    1/git.exe
+      2/git.exe
+3/somewhere/anotherfolder/git.exe"
+                                                           :err ""}))
