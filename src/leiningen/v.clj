@@ -126,17 +126,18 @@
 ;;                          (.load pom-properties-reader)))]
 ;;   (get pom-properties "version"))
 
-(defn- update-dependency [v d]
-  (if-not (second d)
-    (assoc d 1 v)
-    d))
+(defn- update-dependency [project v d]
+  (let [lein-v-dep-flag (get-in project [:v :lein-v-dependency-flag])]
+    (if (= lein-v-dep-flag (second d))
+      (assoc d 1 v)
+      d)))
 
 (defn dependency-version-from-scm
   [project]
   (let [v (str (or (version (:v project)) "UNKNOWN"))]
     (clojure.core/update project
                          :dependencies
-                         #(map (partial update-dependency v) %1))))
+                         #(map (partial update-dependency project v) %1))))
 
 (defn add-workspace-data
   [project]

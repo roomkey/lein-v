@@ -14,6 +14,11 @@
                                        :dependencies [["abc" "1.0"]
                                                       ["def" nil]]))
 
+(def $project-with-lein-v-flag (-> $project
+                                   (assoc :dependencies [["abc" "1.0"]
+                                                         ["def" :lein-v]
+                                                         ["ghi" nil]])
+                                   (assoc-in [:v :lein-v-dependency-flag] :lein-v)))
 
 (defchecker as-string
   [expected]
@@ -36,6 +41,10 @@
       (:dependencies (dependency-version-from-scm $project-with-dependencies)) => (contains [["def" "[[0 0 0] nil 4 \"abcd\"]"]])
       (provided (git/version) => [nil 4 "abcd" false]))
 
+(fact "git version components are only injected into flagged dependencies when explicit lein-v version flag is specified"
+      (:dependencies (dependency-version-from-scm $project-with-lein-v-flag)) => (contains [["def" "[[1 2 3] nil 3 \"abcd\" true]"]
+                                                                                            ["ghi" nil]])
+      (provided (git/version) => ["[[1 2 3] nil]" 3 "abcd" true]))
 
 (fact "tag is created with updated version"
       (update $project :minor) => (as-string "[[1 3 0] nil]")
