@@ -20,6 +20,17 @@
       => (contains {:version "0.0.0"
                     :manifest (contains {"Implementation-Version" "0.0.0"})}))
 
+(fact "String version of :lein-v works correctly"
+      (against-background (before :facts (do (init!))))
+      (middleware {:version ":lein-v" :v {:from-scm 'leiningen.v.maven/from-scm}})
+      => (contains {:version "0.0.0"
+                    :manifest (contains {"Implementation-Version" "0.0.0"})}))
+
+(fact "Non :lein-v version number is ignored"
+      (against-background (before :facts (do (init!))))
+      (middleware {:version "1.2.3" :v {:from-scm 'leiningen.v.maven/from-scm}})
+      => (contains {:version "1.2.3"}))
+
 (fact "Baseless commit returns default + commit metadata"
       (against-background (before :facts (do (init!) (commit!))))
       (middleware $mproject)
