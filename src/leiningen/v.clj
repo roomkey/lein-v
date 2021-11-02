@@ -13,9 +13,9 @@
 
 (defn- version
   "Determine the version for the project by dynamically interrogating the environment"
-  [{from-scm :from-scm :or {from-scm 'leiningen.v.maven/from-scm}}]
+  [{from-scm :from-scm :or {from-scm 'leiningen.v.maven/from-scm} :as config}]
   (let [f (ns-resolve *ns* from-scm)
-        scm (git/version)]
+        scm (apply git/version (mapcat identity config))]
     (when-not scm (leiningen.core.main/warn "No SCM data available!"))
     (apply f scm)))
 
