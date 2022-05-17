@@ -20,7 +20,7 @@
          (lein/abort (format (str "Can't determine location of git.exe: 'where git.exe' returned %d.\n"
                                   "stdout: %s\n stderr: %s")
                              exit out err))
-         (string/trim out))))))
+         (string/trim (first (string/split-lines out))))))))
 
 (defn- git-exe []
   (if windows?
